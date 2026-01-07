@@ -1,0 +1,27 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: string-api
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          #issuer-uri: https://auth.stringtecnologiadf.org/realms/stringtecnologia
+          jwk-set-uri: https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/certs
+logging:
+  level:
+    root: INFO
+
+    # 🔐 Spring Security (CRÍTICO)
+    org.springframework.security: TRACE
+
+    # 🔑 OAuth2 / JWT
+    org.springframework.security.oauth2: TRACE
+    org.springframework.security.oauth2.server.resource: TRACE
+
+    # 🌐 Web / filtros
+    org.springframework.web: DEBUG
+
+    # 🌱 Spring Boot
+    org.springframework.boot.autoconfigure.security: DEBUG
