@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping
 public class TesteController {
 
     private final List<UserDTO> users = new CopyOnWriteArrayList<>();
