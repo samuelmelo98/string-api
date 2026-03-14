@@ -18,7 +18,7 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-   @Bean
+    @Bean
 SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .cors(Customizer.withDefaults())
@@ -31,7 +31,14 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/api/hello").hasRole("frontend-user")
             .anyRequest().authenticated()
         )
-        // ...
+        .oauth2ResourceServer(oauth2 ->
+            oauth2.jwt(jwt ->
+                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+            )
+        );
+
+    return http.build();
+}
 
     // 2. CONFIGURAÇÃO DE CORS (O segredo para o Angular funcionar)
     @Bean
