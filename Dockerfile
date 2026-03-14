@@ -6,7 +6,7 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copia o código fonte e gera o executável
+# Copia o código fonte e gera o executável.
 COPY src ./src
 RUN mvn clean package -DskipTests
 
