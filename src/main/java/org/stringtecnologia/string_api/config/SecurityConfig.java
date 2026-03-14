@@ -18,28 +18,20 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
+   @Bean
 SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        // 1. O CORS deve ser configurado primeiro
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .cors(Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            // 2. LIBERAÇÃO EXPLÍCITA PARA O NAVEGADOR (Preflight)
+            // 👇 LIBERE O ENDPOINT DE ERRO E O OPTIONS
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/error").permitAll() 
             
-            // Suas outras rotas
             .requestMatchers("/api/hello").hasRole("frontend-user")
             .anyRequest().authenticated()
         )
-        .oauth2ResourceServer(oauth2 ->
-            oauth2.jwt(jwt ->
-                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
-            )
-        );
-
-    return http.build();
-}
+        // ...
 
     // 2. CONFIGURAÇÃO DE CORS (O segredo para o Angular funcionar)
     @Bean
