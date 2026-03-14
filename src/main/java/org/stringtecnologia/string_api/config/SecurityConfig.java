@@ -2,6 +2,7 @@ package org.stringtecnologia.string_api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,60 +20,69 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(Customizer.withDefaults())
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            // 👇 LIBERE O ENDPOINT DE ERRO E O OPTIONS
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/error").permitAll() 
-            
-            .requestMatchers("/api/hello").hasRole("frontend-user")
-            .anyRequest().authenticated()
-        )
-        .oauth2ResourceServer(oauth2 ->
-            oauth2.jwt(jwt ->
-                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
-            )
-        );
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // 1. Ativa a configuração de CORS definida no Bean abaixo
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // 2. Desativa CSRF (comum para APIs Stateless/JWT)
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // 3. Libera o "check" do navegador (Preflight) para todas as rotas
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-    return http.build();
-}
+                        // 4. Libera o endpoint de erro para que o log mostre a causa real de falhas
+                        .requestMatchers("/error").permitAll()
 
-    // 2. CONFIGURAÇÃO DE CORS (O segredo para o Angular funcionar)
+                        // 5. Suas regras de permissão por Role
+                        .requestMatchers("/api/hello").hasRole("frontend-user")
+
+                        // 6. Qualquer outra requisição exige autenticação
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(jwt ->
+                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                );
+
+        return http.build();
+    }
+
     @Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    
-    // 👇 ADICIONE AMBOS OU O QUE VOCÊ REALMENTE USA NO NAVEGADOR
-    configuration.setAllowedOrigins(List.of(
-        "https://app.cluster.stringtecnologiadf.org", 
-        "https://site.cluster.stringtecnologiadf.org"
-    ));
-    
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    
-    // 👇 ADICIONE ESTE HEADER (O Angular costuma enviar para o Keycloak)
-    configuration.setAllowedHeaders(Arrays.asList(
-        "Authorization", 
-        "Content-Type", 
-        "Cache-Control", 
-        "X-Requested-With"
-    ));
-    
-    configuration.setAllowCredentials(true);
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-}
+        // Origens permitidas (Subdomínios diferentes são tratados como origens diferentes)
+        configuration.setAllowedOrigins(List.of(
+                "https://app.cluster.stringtecnologiadf.org",
+                "https://site.cluster.stringtecnologiadf.org",
+                "http://localhost:4200"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Headers permitidos para o Angular e Keycloak
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Cache-Control",
+                "X-Requested-With",
+                "Accept",
+                "Origin"
+        ));
+
+        // Necessário para cookies e cabeçalhos de autenticação entre domínios
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        // Use apenas o seu conversor customizado (KeycloakRealmRoleConverter)
-        // Certifique-se que dentro dele você está buscando o claim "realm_access"
+        // Usa o seu conversor customizado que extrai as roles do 'realm_access' do JWT
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRealmRoleConverter());
         return jwtAuthenticationConverter;
     }
