@@ -43,18 +43,31 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
     // 2. CONFIGURAÇÃO DE CORS (O segredo para o Angular funcionar)
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Libere a URL do seu frontend
-        configuration.setAllowedOrigins(List.of("https://site.cluster.stringtecnologiadf.org"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
-        configuration.setAllowCredentials(true);
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    
+    // 👇 ADICIONE AMBOS OU O QUE VOCÊ REALMENTE USA NO NAVEGADOR
+    configuration.setAllowedOrigins(List.of(
+        "https://app.cluster.stringtecnologiadf.org", 
+        "https://site.cluster.stringtecnologiadf.org"
+    ));
+    
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    
+    // 👇 ADICIONE ESTE HEADER (O Angular costuma enviar para o Keycloak)
+    configuration.setAllowedHeaders(Arrays.asList(
+        "Authorization", 
+        "Content-Type", 
+        "Cache-Control", 
+        "X-Requested-With"
+    ));
+    
+    configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+}
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
