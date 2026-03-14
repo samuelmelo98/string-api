@@ -1,0 +1,45 @@
+name: Deploy Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    env:
+      # O caminho do KUBECONFIG que você já validou no servidor
+      KUBECONFIG: /home/samuel-admin/.kube/config
+      # Gera a tag da imagem usando o hash do commit para rastreabilidade
+      IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: |
+          docker build -t $IMAGE .
+
+      - name: Login GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: |
+          docker push $IMAGE
+
+      - name: Update deployment
+        run: |
+          # 1. Alterado de 'app' para 'string-api' para bater com o seu nameOverride
+          # 2. O nome do container interno ('app') permanece conforme definido no base/deployment.yml
+          kubectl set image deployment/string-api app=$IMAGE -n prod
+          
+          # 3. Verifica se o novo pod subiu corretamente antes de encerrar o job
+          kubectl rollout status deployment/string-api -n prod
