@@ -1,23 +1,22 @@
-# Estágio 1: Build (Maven)
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Estágio 1: Build (Maven com Java 21)
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copia os arquivos de configuração do Maven para cachear dependências
+# Copia arquivos e baixa dependências
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copia o código fonte e gera o executável.
+# Copia código e compila
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Estágio 2: Execução (JRE mais leve)
-FROM eclipse-temurin:17-jre-jammy
+# Estágio 2: Execução (JRE 21)
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copia o JAR do estágio de build
 COPY --from=build /app/target/*.jar app.jar
 
-# Expõe a porta que vimos no seu application.yaml
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
