@@ -1,0 +1,11 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+app:
+  frontend-url: https://app.cluster.stringtecnologiadf.org
+
+logging:
+  level:
+    org.springframework.security: INFO

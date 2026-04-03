@@ -1,0 +1,12 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+app:
+  frontend-url: https://stringtecnologiadf.org:4200
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.web: DEBUG
