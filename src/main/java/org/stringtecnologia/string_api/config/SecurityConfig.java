@@ -32,6 +32,9 @@ public class SecurityConfig {
 
                         // 4. Libera o endpoint de erro para que o log mostre a causa real de falhas
                         .requestMatchers("/error").permitAll()
+                        // ✅ LIBERA PDF
+            .requestMatchers("/api/relatorios/**").permitAll()
+            .requestMatchers("/api/validacao/**").permitAll()
 
                         // 5. Suas regras de permissão por Role
                         .requestMatchers("/api/hello").hasRole("frontend-user")

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+
+<style>
+    @page {
+    size: A4;
+    margin: 120px 30px 80px 30px;
+
+    @top-center {
+        content: element(header);
+    }
+
+    @bottom-center {
+        content: element(footer) " | Página " counter(page) " de " counter(pages);
+    }
+}
+
+
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        color: #2c3e50;
+    }
+
+    /* HEADER FIXO */
+    .header {
+        position: running(header);
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+
+    .header table {
+        width: 100%;
+    }
+
+    .title {
+        text-align: right;
+    }
+
+    h1 {
+        margin: 0;
+        color: #3498db;
+    }
+
+    /* FOOTER FIXO */
+    .footer {
+        position: running(footer);
+        font-size: 10px;
+        border-top: 1px solid #ccc;
+        padding-top: 5px;
+        text-align: center;
+    }
+
+    .info {
+        margin-top: 20px;
+        padding: 10px;
+        background: #f4f6f7;
+        border-radius: 5px;
+    }
+
+    .section {
+        margin-top: 25px;
+    }
+
+    .section h2 {
+        border-left: 5px solid #3498db;
+        padding-left: 10px;
+        font-size: 16px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 11px;
+    }
+
+    th {
+        background: #3498db;
+        color: white;
+        padding: 8px;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .total {
+        text-align: right;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+/*
+    .qrcode {
+        margin-top: 20px;
+        text-align: right;
+    }*/
+
+  .qrcode {
+    margin-top: 20px;
+    text-align: right;
+}
+
+    .signature {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .signature img {
+        width: 180px;
+    }
+
+ 
+</style>
+
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+    <table>
+        <tr>
+            <td></td>
+            <td class="title">
+                <h1>RELATÓRIO</h1>
+                <p th:text="${titulo}"></p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+    Documento gerado por <b th:text="${usuario}"></b> |
+    <span th:text="${dataHora}"></span> |
+    IP: <span th:text="${ip}"></span> |
+</div>
+
+<!-- CONTEÚDO -->
+
+<div class="content">
+
+
+<div class="info">
+    <p><b>Autor:</b> <span th:text="${usuario}"></span></p>
+    <p><b>Data:</b> <span th:text="${data}"></span></p>
+    <p><b>Projeto:</b> <span th:text="${projeto}"></span></p>
+</div>
+
+<div class="section">
+    <h2>Resumo</h2>
+    <p th:text="${resumo}"></p>
+</div>
+
+<div class="section">
+    <h2>Itens</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Valor</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${itens}">
+            <td th:text="${item.nome}"></td>
+            <td th:text="${item.descricao}"></td>
+            <td th:text="${item.valor}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="total">
+        Total: <span th:text="${total}"></span>
+    </p>
+</div>
+
+<!-- QR CODE (seguro contra null) -->
+ <!--
+<div class="qrcode" th:if="${qrcode != null}">
+    <img th:src="'data:image/png;base64,' + ${qrcode}" width="100"/>
+</div>
+-->
+
+<div class="qrcode" th:if="${qrcode != null}">
+    <p style="font-size:10px; margin-bottom:5px;">Validação</p>
+    <img th:src="'data:image/png;base64,' + ${qrcode}" width="100"/>
+</div>
+
+<!-- ASSINATURA (seguro contra null) -->
+<div class="signature" th:if="${assinatura != null}">
+    <img th:src="'data:image/png;base64,' + ${assinatura}"/>
+    <p th:text="${usuario}"></p>
+</div>
+
+
+</div>
+
+</body>
+</html>
