@@ -30,11 +30,16 @@ import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Value;
+
 
 
 @RestController
 @RequestMapping("/api/relatorios")
 public class RelatorioController {
+
+    @Value("${app.frontend-url}")
+private String frontendUrl;
 
     @Autowired
     private PdfService pdfService;
@@ -51,7 +56,10 @@ public ResponseEntity<byte[]> gerarPdf(HttpServletRequest request) throws Except
                      request.getServerName() + ":" +
                      request.getServerPort();
 
-    String urlValidacao = baseUrl + "/api/validacao/" + codigo;
+
+                     String urlValidacao = frontendUrl + "/validacao/" + codigo;
+
+   // String urlValidacao = baseUrl + "/api/validacao/" + codigo;
 
     System.out.println("CODIGO: " + codigo);
 
