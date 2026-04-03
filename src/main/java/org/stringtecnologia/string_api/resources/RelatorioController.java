@@ -28,6 +28,8 @@ import java.util.Base64;
 
 import java.util.UUID;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 
 
 @RestController
@@ -40,45 +42,55 @@ public class RelatorioController {
     @Autowired
 private DocumentoRepository repository;
 
-    @GetMapping("/pdf")
-    public ResponseEntity<byte[]> gerarPdf() throws Exception {
+  @GetMapping("/pdf")
+public ResponseEntity<byte[]> gerarPdf(HttpServletRequest request) throws Exception {
 
-        Map<String, Object> dados = new HashMap<>();
+    String codigo = UUID.randomUUID().toString();
 
-        dados.put("usuario", "Samuel Silva");
-        dados.put("data", "03/04/2026");
-        dados.put("dataHora", "03/04/2026 15:00");
-        dados.put("projeto", "Sistema RH");
-        dados.put("resumo", "Relatório gerado com Spring Boot + Thymeleaf");
-        dados.put("titulo", "Relatório de Teste");
-        dados.put("ip", "127.0.0.1");
-        dados.put("total", "R$ 300");
-        dados.put("qrcode", gerarQRCode("http://localhost:4200/validacao/123"));
-        dados.put("assinatura", null);
+    String baseUrl = request.getScheme() + "://" +
+                     request.getServerName() + ":" +
+                     request.getServerPort();
 
-        // Lista com exemplo REAL (melhor que vazio)
-        dados.put("itens", List.of(
-                Map.of("nome", "Item 1", "descricao", "Descrição 1", "valor", "R$ 100"),
-                Map.of("nome", "Item 2", "descricao", "Descrição 2", "valor", "R$ 200")
-        ));
+    String urlValidacao = baseUrl + "/api/validacao/" + codigo;
 
-        Documento doc = new Documento();
-        String codigo = UUID.randomUUID().toString(); // ✅ obrigatório
-doc.setCodigo(codigo);
-doc.setUsuario("Samuel Silva");
-doc.setData("03/04/2026");
+    System.out.println("CODIGO: " + codigo);
 
-System.out.println("CODIGO:" + codigo);
+    Map<String, Object> dados = new HashMap<>();
 
-repository.salvar(doc);
+    dados.put("usuario", "Samuel Silva");
+    dados.put("data", "03/04/2026");
+    dados.put("dataHora", "03/04/2026 15:00");
+    dados.put("projeto", "Sistema RH");
+    dados.put("resumo", "Relatório gerado com Spring Boot + Thymeleaf");
+    dados.put("titulo", "Relatório de Teste");
+    dados.put("ip", "127.0.0.1");
+    dados.put("total", "R$ 300");
 
-        byte[] pdf = pdfService.gerarPdf(dados);
+    // ✅ CORRETO
+    dados.put("qrcode", gerarQRCode(urlValidacao));
+    dados.put("codigo", codigo);
+    dados.put("assinatura", null);
 
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=relatorio.pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
-    }
+    dados.put("itens", List.of(
+        Map.of("nome", "Item 1", "descricao", "Descrição 1", "valor", "R$ 100"),
+        Map.of("nome", "Item 2", "descricao", "Descrição 2", "valor", "R$ 200")
+    ));
+
+    // salvar documento
+    Documento doc = new Documento();
+    doc.setCodigo(codigo);
+    doc.setUsuario("Samuel Silva");
+    doc.setData("03/04/2026");
+
+    repository.salvar(doc);
+
+    byte[] pdf = pdfService.gerarPdf(dados);
+
+    return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=relatorio.pdf")
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdf);
+}
 
     public String gerarQRCode(String texto) throws Exception {
     QRCodeWriter writer = new QRCodeWriter();

@@ -59,7 +59,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "https://app.cluster.stringtecnologiadf.org",
                 "https://site.cluster.stringtecnologiadf.org",
-                "http://localhost:4200"
+                "http://localhost:4200",
+		"https://stringtecnologiadf.org:4200"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
