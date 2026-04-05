@@ -1,6 +1,8 @@
 
 package org.stringtecnologia.string_api.model.dto;
 
+
+
 public class Documento{
     private String codigo;
     private String usuario;

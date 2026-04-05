@@ -1,5 +1,7 @@
 package org.stringtecnologia.string_api.resources;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.sql.DataSource;
 
 
 @RestController
@@ -137,4 +140,6 @@ System.out.println("RemoteAddr: " + request.getRemoteAddr());
 
     return request.getRemoteAddr();
 }
+
+
 }
