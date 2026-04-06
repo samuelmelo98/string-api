@@ -5,28 +5,23 @@ server:
 spring:
   application:
     name: string-api
-     
 
   datasource:
-    url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api
-    username: ${USUARIO}
-    password: ${SENHA}
+    url: jdbc:postgresql://192.168.0.8:5432/string_api_db
+    username: string_api_user
+    password: ${DATA_BASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 60000
-
 
   jpa:
     hibernate:
       ddl-auto: none   # ou validate / update (depende do seu cenário)
     properties:
-      jakarta.persistence.query.timeout: 300000
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
   profiles:
-    default: dev
+    default: dev   # ✅ PROFILE PADRÃO
 
   security:
     oauth2:
@@ -37,34 +32,3 @@ spring:
 logging:
   level:
     root: INFO
-  pattern:
-    dateformat: dd/MM/yyyy HH:mm:ss.SSS
-
-
-api:
-  infosimples:
-    api-base-url: ${URL}
-    api-key: ${KEY}
-    time-out: 30s
-
-
-
-
-
-# =========================================================
-# STORAGE
-# =========================================================
-app:
-  storage:
-    max-size: 5MB
-
-    allowed-types:
-      - application/pdf
-      - image/png
-      - image/jpeg
-
-    allowed-extensions:
-      - pdf
-      - png
-      - jpg
-      - jpeg
