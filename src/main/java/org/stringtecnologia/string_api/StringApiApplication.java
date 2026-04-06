@@ -22,7 +22,7 @@ public class StringApiApplication {
 	CommandLineRunner testConnection(DataSource dataSource) {
 		return args -> {
 			try (var conn = dataSource.getConnection()) {
-				System.out.println("🔥 CONECTOU NO BANCO COM SUCESSO!");
+				System.out.println("🔥 CONECTOU NO BANCO COM SUCESSO!!!!");
 			}
 		};
 	}*/
