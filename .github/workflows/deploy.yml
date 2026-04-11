@@ -1,9 +1,12 @@
 name: Deploy Kubernetes
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão'
+        required: true
+        default: 'latest'
 
 permissions:
   contents: read
@@ -14,32 +17,66 @@ jobs:
     runs-on: self-hosted
 
     env:
-      # O caminho do KUBECONFIG que você já validou no servidor
-      KUBECONFIG: /home/samuel-admin/.kube/config
-      # Gera a tag da imagem usando o hash do commit para rastreabilidade
-      IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
     steps:
-      - name: Checkout
+
+      # 🔹 checkout código
+      - name: Checkout app
         uses: actions/checkout@v4
 
-      - name: Build image
+      # 🔹 variáveis dinâmicas
+      - name: Definir variáveis
         run: |
-          docker build -t $IMAGE .
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+          IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
 
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      # 🔥 build do Spring Boot
+      - name: Build JAR
+        run: mvn clean package -DskipTests
+
+      # 🔹 build docker
+      - name: Build
+        run: docker build -t $IMAGE .
+
+      # 🔐 login
       - name: Login GHCR
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Push image
-        run: |
-          docker push $IMAGE
+      # 📦 push
+      - name: Push
+        run: docker push $IMAGE
 
-      - name: Update deployment
+      # 🔥 infra
+      - name: Checkout infra
         run: |
-          # 1. Alterado de 'app' para 'string-api' para bater com o seu nameOverride
-          # 2. O nome do container interno ('app') permanece conforme definido no base/deployment.yml
-          kubectl set image deployment/string-api app=$IMAGE -n prod
-          
-          # 3. Verifica se o novo pod subiu corretamente antes de encerrar o job
-          kubectl rollout status deployment/string-api -n prod
+          rm -rf app-cluster
+          git clone https://github.com/samuelmelo98/app-cluster.git
+
+      # 🚀 deploy
+      - name: Deploy declarativo
+        run: |
+          set -e
+
+          cd app-cluster/k8s/overlays/prod
+
+          echo "🚀 Deployando API: $APP_NAME"
+          echo "📦 Imagem: $IMAGE"
+
+          # nome dinâmico
+          kustomize edit set nameprefix ${APP_NAME}-
+
+          # imagem dinâmica
+          kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
+
+          # domínio dinâmico
+          sed -i "s/\bapp\.cluster\b/${APP_NAME}.cluster/g" ingress.yml
+
+          # aplica
+          kubectl apply -k . -n prod
+
+          # rollout
+          kubectl rollout status deployment/${APP_NAME}-app -n prod
