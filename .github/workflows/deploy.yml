@@ -33,6 +33,9 @@ jobs:
 
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          
+      - name: Dar permissão ao mvnw
+        run: chmod +x mvnw    
 
       # 🔥 build do Spring Boot
       - name: Build JAR
