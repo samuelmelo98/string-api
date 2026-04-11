@@ -58,7 +58,7 @@ public class SecurityConfig {
         // Origens permitidas (Subdomínios diferentes são tratados como origens diferentes)
         configuration.setAllowedOrigins(List.of(
                 "https://app.cluster.stringtecnologiadf.org",
-                "https://site.cluster.stringtecnologiadf.org",
+                "https://site-html.cluster.stringtecnologiadf.org",
                 "http://localhost:4200",
 		"https://stringtecnologiadf.org:4200"
         ));
