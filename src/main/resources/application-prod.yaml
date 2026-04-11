@@ -4,7 +4,7 @@ spring:
       on-profile: prod
 
 app:
-  frontend-url: https://app.cluster.stringtecnologiadf.org
+  frontend-url: https://site-html.cluster.stringtecnologiadf.org
 
 logging:
   level:
