@@ -1,19 +1,87 @@
-- name: Deploy declarativo
-  run: |
-    set -e
+name: Deploy Kubernetes
 
-    APP_NAME=$(basename $GITHUB_REPOSITORY)
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão'
+        required: true
+        default: 'latest'
 
-    cd app-cluster/k8s/overlays/prod/$APP_NAME
+permissions:
+  contents: read
+  packages: write
 
-    echo "🚀 Deployando: $APP_NAME"
-    echo "📦 Imagem: $IMAGE"
+jobs:
+  deploy:
+    runs-on: self-hosted
 
-    # atualiza imagem
-    kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
+    env:
+      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
-    # aplica
-    kubectl apply -k . -n prod
+    steps:
+      # 🔹 checkout código
+      - name: Checkout app
+        uses: actions/checkout@v4
+        
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
 
-    # rollout
-    kubectl rollout status deployment/${APP_NAME}-app -n prod
+      # 🔹 variáveis dinâmicas
+      - name: Definir variáveis
+        run: |
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+          IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
+
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          
+      - name: Dar permissão ao mvnw
+        run: chmod +x mvnw    
+
+      # 🔥 build do Spring Boot
+      - name: Build JAR
+        run: ./mvnw clean package -DskipTests
+
+      # 🔹 build docker
+      - name: Build
+        run: docker build -t $IMAGE .
+
+      # 🔐 login
+      - name: Login GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # 📦 push
+      - name: Push
+        run: docker push $IMAGE
+
+      # 🔥 infra
+      - name: Checkout infra
+        run: |
+          rm -rf app-cluster
+          git clone https://github.com/samuelmelo98/app-cluster.git
+
+      # 🚀 deploy (CORRIGIDO)
+      - name: Deploy declarativo
+        run: |
+          set -e
+
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+
+          cd app-cluster/k8s/overlays/prod/$APP_NAME
+
+          echo "🚀 Deployando: $APP_NAME"
+          echo "📦 Imagem: $IMAGE"
+
+          # atualiza imagem
+          kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
+
+          # aplica
+          kubectl apply -k . -n prod
+
+          # rollout
+          kubectl rollout status deployment/${APP_NAME}-app -n prod
