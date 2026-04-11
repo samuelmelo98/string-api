@@ -13,12 +13,12 @@ public class StringApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(StringApiApplication.class, args);
 	}
-	@Bean
+	/*@Bean
 	CommandLineRunner testConnection(DataSource dataSource) {
 		return args -> {
 			try (var conn = dataSource.getConnection()) {
 				System.out.println("🔥 CONECTOU NO BANCO COM SUCESSO!");
 			}
 		};
-	}
+	}*/
 }
