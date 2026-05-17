@@ -35,6 +35,8 @@ public class SecurityConfig {
                         // ✅ LIBERA PDF
            .requestMatchers("/api/relatorios/**").permitAll()
             .requestMatchers("/api/validacao/**").permitAll()
+            .requestMatchers("/api/v1/documents/**").permitAll()
+            .requestMatchers("/api/v1/cpf/**").permitAll()
 
                         // 5. Suas regras de permissão por Role
                         .requestMatchers("/api/hello").hasRole("frontend-user")
