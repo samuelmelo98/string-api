@@ -1,19 +1,25 @@
 package org.stringtecnologia.string_api.resources;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.stringtecnologia.string_api.model.dto.UserCreateDTO;
 import org.stringtecnologia.string_api.model.dto.UserDTO;
+import org.stringtecnologia.string_api.services.UserService;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping
+@RequiredArgsConstructor
 public class TesteController {
 
     private final List<UserDTO> users = new CopyOnWriteArrayList<>();
+
+    private final UserService userService;
 
     @GetMapping("/hello")
     public Map<String, Object> hello(Authentication authentication) {
@@ -41,6 +47,8 @@ public class TesteController {
 
             Jwt jwt = (Jwt) authentication.getPrincipal();
 
+
+
             // 🔹 Aqui depois você persiste no banco
             return Map.of(
                     "name", dto.getName(),
@@ -53,7 +61,8 @@ public class TesteController {
     // 🔹 LISTAR USUÁRIOS
     @GetMapping("/users")
     public List<UserDTO> list(Authentication authentication) {
-        return users;
+        return userService.all();
+       // return users;
     }
 
     // 🔹 CADASTRAR USUÁRIO
@@ -66,7 +75,7 @@ public class TesteController {
 
         System.out.println("Usuário autenticado: " +
                 jwt.getClaimAsString("preferred_username"));
-
+        userService.salvarUsuario(user);
         users.add(user);
         return user;
     }

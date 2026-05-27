@@ -69,6 +69,7 @@ public ResponseEntity<byte[]> gerarPdf(HttpServletRequest request) throws Except
     Map<String, Object> dados = new HashMap<>();
 
     String ip = getClientIp(request);
+    String ip2= getClientIp2(request);
 
 
     dados.put("usuario", "Samuel Silva");
@@ -140,6 +141,27 @@ System.out.println("RemoteAddr: " + request.getRemoteAddr());
 
     return request.getRemoteAddr();
 }
+
+    public String getClientIp2(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        // Caso venha múltiplos IPs: client, proxy1, proxy2
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+
+        return ip;
+    }
 
 
 }
