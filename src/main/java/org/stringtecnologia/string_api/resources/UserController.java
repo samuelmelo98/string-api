@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
-public class TesteController {
+public class UserController {
 
     private final List<UserDTO> users = new CopyOnWriteArrayList<>();
 
