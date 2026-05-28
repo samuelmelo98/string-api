@@ -8,7 +8,7 @@ spring:
      
 
   datasource:
-    url: jdbc:postgresql://10.10.10.2:30432/string_api
+    url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api
     username: ${USUARIO}
     password: ${SENHA}
     driver-class-name: org.postgresql.Driver
