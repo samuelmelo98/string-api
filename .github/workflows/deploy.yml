@@ -1,4 +1,4 @@
-
+```yaml
 name: Deploy Kubernetes
 
 on:
@@ -70,7 +70,7 @@ jobs:
           rm -rf app-cluster
 
           git clone \
-          https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/samuelmelo98/app-cluster.git
+          https://x-access-token:${{ secrets.GH_PAT }}@github.com/samuelmelo98/app-cluster.git
 
       # 🚀 atualiza GitOps
       - name: Atualizar GitOps
@@ -95,6 +95,10 @@ jobs:
           git commit -m "deploy ${APP_NAME}:${{ github.event.inputs.version }}" \
           || echo "Sem alterações"
 
+          # garante remote autenticado
+          git remote set-url origin \
+          https://x-access-token:${{ secrets.GH_PAT }}@github.com/samuelmelo98/app-cluster.git
+
           # push
           git push
 
@@ -103,4 +107,4 @@ jobs:
         run: |
           echo "✅ GitOps atualizado."
           echo "🤖 ArgoCD fará o deploy automaticamente."
-
+```
