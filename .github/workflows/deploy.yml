@@ -1,4 +1,4 @@
-```yaml
+
 name: Deploy Kubernetes
 
 on:
@@ -103,4 +103,4 @@ jobs:
         run: |
           echo "✅ GitOps atualizado."
           echo "🤖 ArgoCD fará o deploy automaticamente."
-```
+
