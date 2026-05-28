@@ -1,3 +1,4 @@
+```yaml
 name: Deploy Kubernetes
 
 on:
@@ -9,21 +10,20 @@ on:
         default: 'latest'
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
   deploy:
     runs-on: self-hosted
 
-    env:
-      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-
     steps:
-      # 🔹 checkout código
+
+      # 🔹 checkout código da aplicação
       - name: Checkout app
         uses: actions/checkout@v4
-        
+
+      # 🔹 Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -31,7 +31,7 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
-      # 🔹 variáveis dinâmicas
+      # 🔹 variáveis
       - name: Definir variáveis
         run: |
           APP_NAME=$(basename $GITHUB_REPOSITORY)
@@ -39,49 +39,68 @@ jobs:
 
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
-          
-      - name: Dar permissão ao mvnw
-        run: chmod +x mvnw    
 
-      # 🔥 build do Spring Boot
+      # 🔹 permissão Maven Wrapper
+      - name: Dar permissão ao mvnw
+        run: chmod +x mvnw
+
+      # 🔥 build JAR
       - name: Build JAR
         run: ./mvnw clean package -DskipTests
 
-      # 🔹 build docker
-      - name: Build
+      # 🐳 build docker
+      - name: Build Docker
         run: docker build -t $IMAGE .
 
-      # 🔐 login
+      # 🔐 login GHCR
       - name: Login GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+          | docker login ghcr.io \
+          -u ${{ github.actor }} \
+          --password-stdin
 
-      # 📦 push
-      - name: Push
+      # 📦 push imagem
+      - name: Push Docker Image
         run: docker push $IMAGE
 
-      # 🔥 infra
-      - name: Checkout infra
+      # 🔥 checkout GitOps repo
+      - name: Checkout app-cluster
         run: |
           rm -rf app-cluster
-          git clone https://github.com/samuelmelo98/app-cluster.git
 
-      # 🚀 deploy (CORRIGIDO)
-      - name: Deploy declarativo
+          git clone \
+          https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/samuelmelo98/app-cluster.git
+
+      # 🚀 atualiza GitOps
+      - name: Atualizar GitOps
         run: |
           set -e
 
-          APP_NAME=$(basename $GITHUB_REPOSITORY)
+          echo "🚀 Aplicação: $APP_NAME"
+          echo "📦 Imagem: $IMAGE"
 
           cd app-cluster/k8s/overlays/prod/$APP_NAME
 
-          echo "🚀 Deployando: $APP_NAME"
-          echo "📦 Imagem: $IMAGE"
-
-          # atualiza imagem
+          # atualiza imagem no kustomize
           kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-          # aplica
-          kubectl apply -k . -n prod
+          # git config
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
 
-          # rollout
-          kubectl rollout status deployment/${APP_NAME}-app -n prod
+          # commit
+          git add .
+
+          git commit -m "deploy ${APP_NAME}:${{ github.event.inputs.version }}" \
+          || echo "Sem alterações"
+
+          # push
+          git push
+
+      # ✅ fim
+      - name: Finalizado
+        run: |
+          echo "✅ GitOps atualizado."
+          echo "🤖 ArgoCD fará o deploy automaticamente."
+```
