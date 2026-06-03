@@ -37,6 +37,7 @@ public class SecurityConfig {
             .requestMatchers("/api/validacao/**").permitAll()
             .requestMatchers("/api/v1/documents/**").permitAll()
             .requestMatchers("/api/v1/cpf/**").permitAll()
+                                .requestMatchers("/graphql/**").permitAll()
 
                         // 5. Suas regras de permissão por Role
                         .requestMatchers("/api/hello").hasRole("frontend-user")
