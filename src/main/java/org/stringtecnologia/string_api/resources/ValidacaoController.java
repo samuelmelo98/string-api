@@ -31,7 +31,7 @@ public class ValidacaoController {
     @GetMapping("/{codigo}")
     public ResponseEntity<?> validar(@PathVariable String codigo) {
 
-        Documento doc = repository.buscar(codigo);
+        Documento doc =null;
 
         if (doc == null) {
             return ResponseEntity.status(404).body(Map.of(

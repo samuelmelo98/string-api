@@ -16,9 +16,17 @@ public class PdfGeneratorService {
             PdfRendererBuilder builder =
                     new PdfRendererBuilder();
 
+            builder.useFastMode();
+
             builder.withHtmlContent(html, null);
 
             builder.toStream(out);
+
+//            builder.usePdfUaAccessbility(true);
+//            builder.useFont(
+//                    () -> getClass().getResourceAsStream("/fonts/arial.ttf"),
+//                    "Arial"
+//            );
 
             builder.run();
 
@@ -32,3 +40,4 @@ public class PdfGeneratorService {
         }
     }
 }
+

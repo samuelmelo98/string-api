@@ -97,7 +97,7 @@ public ResponseEntity<byte[]> gerarPdf(HttpServletRequest request) throws Except
     doc.setUsuario("Samuel Silva");
     doc.setData("03/04/2026");
 
-    repository.salvar(doc);
+//    repository.salvar(doc);
 
     byte[] pdf = pdfService.gerarPdf(dados);
 

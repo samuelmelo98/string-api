@@ -46,3 +46,25 @@ api:
     api-base-url: ${URL}
     api-key: ${KEY}
     time-out: 30s
+
+
+
+
+
+# =========================================================
+# STORAGE
+# =========================================================
+app:
+  storage:
+    max-size: 5MB
+
+    allowed-types:
+      - application/pdf
+      - image/png
+      - image/jpeg
+
+    allowed-extensions:
+      - pdf
+      - png
+      - jpg
+      - jpeg

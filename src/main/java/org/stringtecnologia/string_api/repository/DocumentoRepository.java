@@ -1,21 +1,21 @@
 package org.stringtecnologia.string_api.repository;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.stereotype.Component;
-import org.stringtecnologia.string_api.model.dto.Documento;
 
-@Component
-public class DocumentoRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.stringtecnologia.string_api.model.entities.Documento;
 
-    private final Map<String, Documento> banco = new ConcurrentHashMap<>();
+import java.util.List;
+import java.util.Optional;
 
-    public void salvar(Documento doc) {
-        banco.put(doc.getCodigo(), doc);
-    }
+public interface DocumentoRepository extends JpaRepository<Documento, Long> {
 
-    public Documento buscar(String codigo) {
-        return banco.get(codigo);
-    }
+//    List<Documento> findByAdiantamentoAdiantamentoId(Long adiantamentoId);
+
+//    List<Documento> findByAdiantamentoAdiantamentoIdOrderByDataCadastroDesc(Long adiantamentoId);
+
+//    Optional<Documento> findFirstByAdiantamentoAdiantamentoIdAndTipoDocumentoCodigoOrderByDataCadastroDesc(
+//            Long adiantamentoId,
+//            String codigo
+//    );
 }
