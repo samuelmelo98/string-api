@@ -1,10 +1,10 @@
 package org.stringtecnologia.string_api.services;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,31 +16,53 @@ public class PdfGeneratorPlaywrightService {
     private Playwright playwright;
     private Browser browser;
 
-    @PostConstruct
-    public void init() {
+    private Browser browser() {
 
-        log.info("Inicializando Playwright...");
+        if (browser == null) {
 
-        playwright = Playwright.create();
+            synchronized (this) {
 
-        browser =
-                playwright.chromium().launch(
-                        new BrowserType.LaunchOptions()
-                                .setHeadless(true)
-                );
+                if (browser == null) {
 
-        log.info("Playwright inicializado.");
+                    log.info("Inicializando Playwright...");
+
+                    playwright = Playwright.create();
+
+                    browser =
+                            playwright.chromium().launch(
+                                    new BrowserType.LaunchOptions()
+                                            .setHeadless(true)
+                                    //.setArgs(List.of("--no-sandbox"))
+                            );
+
+                    log.info("Playwright inicializado.");
+                }
+            }
+        }
+
+        return browser;
     }
 
     public byte[] generate(String html) {
 
+        BrowserContext context = null;
         Page page = null;
 
         try {
 
-            page = browser.newPage();
+            context =
+                    browser().newContext();
 
-            page.setContent(html);
+            page =
+                    context.newPage();
+
+            page.setContent(
+                    html,
+                    new Page.SetContentOptions()
+                            .setWaitUntil(
+                                    com.microsoft.playwright.options.WaitUntilState.NETWORKIDLE
+                            )
+            );
 
             return page.pdf(
                     new Page.PdfOptions()
@@ -64,6 +86,10 @@ public class PdfGeneratorPlaywrightService {
 
             if (page != null) {
                 page.close();
+            }
+
+            if (context != null) {
+                context.close();
             }
         }
     }
