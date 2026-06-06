@@ -6,7 +6,7 @@ spring:
 app:
   frontend-url: https://stringtecnologiadf.org:4200
   storage:
-    path: /data/documentos
+    path: documentos
 
 logging:
   level:
