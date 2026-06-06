@@ -5,6 +5,8 @@ spring:
 
 app:
   frontend-url: https://site-html.cluster.stringtecnologiadf.org
+  storage:
+    path: /data/documentos
 
 logging:
   level:
