@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.stringtecnologia.string_api.documento.dto.AdiantamentoDocumentoDTO;
 import org.stringtecnologia.string_api.documento.dto.DocumentoResponseDTO;
 import org.stringtecnologia.string_api.documento.dto.OrdemServicoDocumentoDTO;
-import org.stringtecnologia.string_api.services.DocumentoTemplateService;
-import org.stringtecnologia.string_api.services.GeradorDocumentoService;
-import org.stringtecnologia.string_api.services.PdfGeneratorPlaywrightService;
-import org.stringtecnologia.string_api.services.PdfGeneratorService;
+import org.stringtecnologia.string_api.services.*;
+import org.stringtecnologia.string_api.util.DominioEnum;
 import org.stringtecnologia.string_api.util.HtmlNormalizerUtil;
+import org.stringtecnologia.string_api.util.TipoDocumentoDominio;
+
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -29,6 +29,7 @@ public class DocumentoThymeleafResource {
     private final DocumentoTemplateService documentoTemplateService;
     private final PdfGeneratorPlaywrightService pdfGeneratorPlaywrightService;
     private final GeradorDocumentoService geradorDocumentoService;
+    private final GeradorDocumentoGenericoService geradorDocumentoGenericoService;
 
     @GetMapping("/{slug}/render")
     public ResponseEntity<String> render(
@@ -112,6 +113,22 @@ public class DocumentoThymeleafResource {
             @RequestParam Long equipamentoId
     ) {
 
-        return geradorDocumentoService.gerarOrdemServico(slug, equipamentoId);
+//        return geradorDocumentoService.gerarOrdemServico(slug, equipamentoId);
+        return geradorDocumentoGenericoService.gerarDocumento(slug,dto,
+                equipamentoId, TipoDocumentoDominio.ORDEM_SERVICO);
     }
+    OrdemServicoDocumentoDTO dto =
+            new OrdemServicoDocumentoDTO(
+                    100L,
+                    "OS-2026-0001",
+                    "Samuel Silvaaaa",
+                    "Notebook Dell Latitude 5420",
+                    "Troca de SSD e instalação do sistema operacional",
+                    BigDecimal.valueOf(350.00),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now()
+            );
+
+
 }

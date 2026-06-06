@@ -11,6 +11,7 @@ public record OrdemServicoDocumentoDTO(
         String equipamento,
         BigDecimal valorServico,
         LocalDate dataEmissao,
-        LocalDate dataEmissao2
+        LocalDate dataEmissao2,
+        LocalDate dataEmissao3
 )
 {}

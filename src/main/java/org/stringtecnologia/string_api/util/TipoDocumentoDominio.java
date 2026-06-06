@@ -4,6 +4,7 @@ public enum TipoDocumentoDominio implements DominioEnum {
     TERMO_ADIANTAMENTO_PARA_ASSINAR,
     TERMO_ADIANTAMENTO_ASSINADO,
     ORDEM_SERVICO,
+    TESTE,
     ANEXO;
 
 

@@ -32,6 +32,8 @@ public class Aparelho implements Serializable {
     private Long aparelhoId;
     private Marca marca;
     private String modelo;
+    private String modeloComercial;
+    private String numeroSerie;
     private String descricao;
     private TipoAparalho tipo;
     private String defeito;

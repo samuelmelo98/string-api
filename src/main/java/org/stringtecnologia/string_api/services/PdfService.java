@@ -32,7 +32,7 @@ public class PdfService {
 
         DocumentTemplate template =
                 documentRepository
-                        .findFirstBySlugAndActiveTrueOrderByVersionDesc("termo-adiantamento")
+                        .findFirstBySlugAndActiveTrueOrderByVersionDesc("ordem-servico")
                         .orElseThrow();
 
 

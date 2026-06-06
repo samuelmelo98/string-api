@@ -1,16 +1,24 @@
 package org.stringtecnologia.string_api.resources;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
+import org.stringtecnologia.string_api.model.dto.teste.ClienteDTO;
+import org.stringtecnologia.string_api.model.dto.teste.ItemDTO;
+import org.stringtecnologia.string_api.model.dto.teste.RelatorioTesteDTO;
+import org.stringtecnologia.string_api.services.GeradorDocumentoGenericoService;
 import org.stringtecnologia.string_api.services.PdfService;
 
 import org.stringtecnologia.string_api.repository.DocumentoRepository;
@@ -33,12 +41,14 @@ import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.stringtecnologia.string_api.util.TipoDocumentoDominio;
 
 import javax.sql.DataSource;
 
 
 @RestController
 @RequestMapping("/api/relatorios")
+@RequiredArgsConstructor
 public class RelatorioController {
 
     @Value("${app.frontend-url}")
@@ -50,8 +60,10 @@ private String frontendUrl;
     @Autowired
 private DocumentoRepository repository;
 
+    private final GeradorDocumentoGenericoService geradorDocumentoGenericoService;
+
   @GetMapping("/pdf")
-public ResponseEntity<byte[]> gerarPdf(HttpServletRequest request) throws Exception {
+public ResponseEntity<byte[]>  gerarPdf(HttpServletRequest request) throws Exception {
 
     String codigo = UUID.randomUUID().toString();
 
@@ -164,4 +176,75 @@ System.out.println("RemoteAddr: " + request.getRemoteAddr());
     }
 
 
+
+
+//    @GetMapping("/pdf/teste")
+//    public ResponseEntity<byte[]>  gerarPdfTeste(HttpServletRequest request) throws Exception {
+//     geradorDocumentoGenericoService.gerarDocumento("teste", this.geraModeloDoc(),1L, TipoDocumentoDominio.TESTE);
+//     return null;
+//    }
+
+    @GetMapping("/pdf/teste")
+    public ResponseEntity<byte[]> gerarPdfTeste() {
+
+        byte[] pdf =
+                geradorDocumentoGenericoService
+                        .gerarPdfSemSalvar(
+                                "teste",
+                                geraModeloDoc()
+                        );
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=teste.pdf"
+                )
+                .body(pdf);
+    }
+
+
+private RelatorioTesteDTO geraModeloDoc(){
+    RelatorioTesteDTO dto =
+            new RelatorioTesteDTO(
+
+                    "Relatório Completo Thymeleaf",
+
+                    "Samuel Silva",
+
+                    LocalDate.now(),
+
+                    BigDecimal.valueOf(1500.75),
+
+                    true,
+
+                    "https://site-html.cluster.stringtecnologiadf.org",
+
+                    new ClienteDTO(
+                            "Empresa XPTO",
+                            "contato@empresa.com",
+                            "(61) 99999-9999"
+                    ),
+
+                    List.of(
+
+                            new ItemDTO(
+                                    1L,
+                                    "Notebook Dell",
+                                    2,
+                                    BigDecimal.valueOf(3500)
+                            ),
+
+                            new ItemDTO(
+                                    2L,
+                                    "Monitor LG",
+                                    1,
+                                    BigDecimal.valueOf(1200)
+                            )
+
+                    )
+            );
+    return dto;
+}
 }

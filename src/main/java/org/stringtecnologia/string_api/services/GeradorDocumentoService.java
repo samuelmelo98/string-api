@@ -21,11 +21,15 @@ public class GeradorDocumentoService {
 
     private final DocumentoTemplateService documentoTemplateService;
 
+
+    private final DocumentoTemplateGenericoService documentoTemplateGenericoService;
+
     private final PdfGeneratorService pdfGeneratorService;
 
     private final PdfGeneratorPlaywrightService pdfGeneratorPlaywrightService;
 
     private final DocumentoService documentoService;
+
 
     public DocumentoResponseDTO gerarTermoAdiantamento(
             Long adiantamentoId
@@ -86,7 +90,8 @@ public class GeradorDocumentoService {
     }
 
 
-    public DocumentoResponseDTO gerarOrdemServico(String slug,
+    public DocumentoResponseDTO gerarOrdemServico(
+            String slug,
             Long equipamentoId
     ) {
 
@@ -96,14 +101,31 @@ public class GeradorDocumentoService {
                         "OS-2026-0001",
                         "Samuel Silva",
                         "Notebook Dell Latitude 5420",
-                        "Troca de SSD e instalação do sistema operacional",
-                        BigDecimal.valueOf(350.00),
+                        "Troca de SSD",
+                        BigDecimal.valueOf(350),
+                        LocalDate.now(),
                         LocalDate.now(),
                         LocalDate.now()
                 );
 
+        return gerarDocumento(
+                slug,
+                dto,
+                equipamentoId,
+                TipoDocumentoDominio.ORDEM_SERVICO
+        );
+    }
+
+
+    public <T> DocumentoResponseDTO gerarDocumento(
+            String slug,
+            T dto,
+            Long referenciaId,
+            TipoDocumentoDominio tipoDocumento
+    ) {
+
         String html =
-                documentoTemplateService.gerar(
+                documentoTemplateGenericoService.gerar(
                         slug,
                         dto
                 );
@@ -115,16 +137,15 @@ public class GeradorDocumentoService {
 
         DocumentoInternoDTO arquivo =
                 new DocumentoInternoDTO(
-                        "ordem-servico.pdf",
+                        slug + ".pdf",
                         "application/pdf",
                         pdf
                 );
 
         return documentoService.salvarInterno(
-                equipamentoId,
+                referenciaId,
                 arquivo,
-                TipoDocumentoDominio.ORDEM_SERVICO
+                tipoDocumento
         );
     }
-
 }
