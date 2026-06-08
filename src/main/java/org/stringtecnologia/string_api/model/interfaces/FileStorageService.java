@@ -13,6 +13,7 @@ public interface FileStorageService {
     void deletar(String caminho);
 
     ArquivoSalvoDTO salvarInterno(
+            String contexto,
             Long adiantamentoId,
             String nomeArquivo,
             byte[] bytes

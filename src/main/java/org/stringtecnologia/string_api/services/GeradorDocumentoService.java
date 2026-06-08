@@ -32,6 +32,7 @@ public class GeradorDocumentoService {
 
 
     public DocumentoResponseDTO gerarTermoAdiantamento(
+            String contexto,
             Long adiantamentoId
     ) {
 
@@ -82,6 +83,7 @@ public class GeradorDocumentoService {
         // =====================================================
 
         return documentoService.salvarInterno(
+                contexto,
                 adiantamentoId,
                 arquivo,
                 TipoDocumentoDominio
@@ -91,6 +93,7 @@ public class GeradorDocumentoService {
 
 
     public DocumentoResponseDTO gerarOrdemServico(
+            String contexto,
             String slug,
             Long equipamentoId
     ) {
@@ -112,7 +115,8 @@ public class GeradorDocumentoService {
                 slug,
                 dto,
                 equipamentoId,
-                TipoDocumentoDominio.ORDEM_SERVICO
+                TipoDocumentoDominio.ORDEM_SERVICO,
+                contexto
         );
     }
 
@@ -121,7 +125,8 @@ public class GeradorDocumentoService {
             String slug,
             T dto,
             Long referenciaId,
-            TipoDocumentoDominio tipoDocumento
+            TipoDocumentoDominio tipoDocumento,
+            String contexto
     ) {
 
         String html =
@@ -143,6 +148,7 @@ public class GeradorDocumentoService {
                 );
 
         return documentoService.salvarInterno(
+                contexto,
                 referenciaId,
                 arquivo,
                 tipoDocumento

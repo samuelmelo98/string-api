@@ -282,6 +282,7 @@ public class LocalFileStorageService implements FileStorageService {
 
     @Override
     public ArquivoSalvoDTO salvarInterno(
+            String contexto,
             Long adiantamentoId,
             String nomeArquivo,
             byte[] bytes
@@ -298,7 +299,7 @@ public class LocalFileStorageService implements FileStorageService {
                     UUID.randomUUID() + extensao;
 
             Path pasta = root
-                    .resolve("adiantamento")
+                    .resolve(contexto)
                     .resolve(adiantamentoId.toString());
 
             Files.createDirectories(pasta);

@@ -416,6 +416,7 @@ public class DocumentoService {
 
     @Transactional
     public DocumentoResponseDTO salvarInterno(
+            String contexto,
             Long adiantamentoId,
             DocumentoInternoDTO arquivo,
             TipoDocumentoDominio tipoEnum
@@ -455,6 +456,7 @@ public class DocumentoService {
 
             arquivoSalvo =
                     storage.salvarInterno(
+                            contexto,
                             adiantamentoId,
                             arquivo.nomeArquivo(),
                             arquivo.bytes()

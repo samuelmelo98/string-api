@@ -22,7 +22,8 @@ public class GeradorDocumentoGenericoService {
                 String slug,
                 T dto,
                 Long referenciaId,
-                TipoDocumentoDominio tipoDocumento
+                TipoDocumentoDominio tipoDocumento,
+                String contexto
         ) {
 
             String html =
@@ -44,6 +45,7 @@ public class GeradorDocumentoGenericoService {
                     );
 
             return documentoService.salvarInterno(
+                    contexto,
                     referenciaId,
                     arquivo,
                     tipoDocumento

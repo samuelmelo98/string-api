@@ -90,6 +90,7 @@ public class DocumentoThymeleafResource {
 
         return geradorDocumentoService
                 .gerarTermoAdiantamento(
+                        "adiantamento",
                         adiantamentoId
                 );
     }
@@ -115,7 +116,7 @@ public class DocumentoThymeleafResource {
 
 //        return geradorDocumentoService.gerarOrdemServico(slug, equipamentoId);
         return geradorDocumentoGenericoService.gerarDocumento(slug,dto,
-                equipamentoId, TipoDocumentoDominio.ORDEM_SERVICO);
+                equipamentoId, TipoDocumentoDominio.ORDEM_SERVICO,"ordem_servico");
     }
     OrdemServicoDocumentoDTO dto =
             new OrdemServicoDocumentoDTO(

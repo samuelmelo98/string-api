@@ -1,11 +1,15 @@
 package org.stringtecnologia.string_api.resources;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.stringtecnologia.string_api.model.dto.UserCreateDTO;
 import org.stringtecnologia.string_api.model.dto.UserDTO;
+import org.stringtecnologia.string_api.model.dto.avatar.AvatarDTO;
 import org.stringtecnologia.string_api.services.UserService;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -79,6 +83,27 @@ public class UserController {
         users.add(user);
         return user;
     }
+
+    @PostMapping("/usuarios/avatar")
+    public AvatarDTO upload(
+            @RequestParam("arquivo") MultipartFile arquivo
+    ) throws Exception {
+
+        String nome = userService.uploudAvatar(arquivo);
+
+        return new AvatarDTO(
+                nome,
+                "/usuarios/avatar/" + nome
+        );
+    }
+
+    @GetMapping("/usuarios/avatar/{arquivo}")
+    public ResponseEntity<Resource> avatar(
+            @PathVariable String arquivo) {
+
+        return userService.recuperarAvatar(arquivo);
+    }
+
     }
 
 

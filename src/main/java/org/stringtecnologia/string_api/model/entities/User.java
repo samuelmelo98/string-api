@@ -32,6 +32,9 @@ public class User {
     private String senha;
 
     @Column(nullable = true)
+    private String avatarUrl;
+
+    @Column(nullable = true)
     private Boolean ativo = true;
 
     @Column(name = "data_criacao", updatable = false)
