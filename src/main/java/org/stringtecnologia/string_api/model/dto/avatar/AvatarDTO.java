@@ -4,3 +4,5 @@ public record AvatarDTO(
         String nomeArquivo,
         String url
 ) {}
+
+

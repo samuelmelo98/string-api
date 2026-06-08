@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.stringtecnologia.string_api.model.dto.UserCreateDTO;
 import org.stringtecnologia.string_api.model.dto.UserDTO;
 import org.stringtecnologia.string_api.model.dto.avatar.AvatarDTO;
+import org.stringtecnologia.string_api.model.dto.avatar.UserProfileDTO;
+import org.stringtecnologia.string_api.model.entities.User;
+import org.stringtecnologia.string_api.repository.UserRepository;
 import org.stringtecnologia.string_api.services.UserService;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,6 +27,7 @@ public class UserController {
     private final List<UserDTO> users = new CopyOnWriteArrayList<>();
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @GetMapping("/hello")
     public Map<String, Object> hello(Authentication authentication) {
@@ -86,22 +90,44 @@ public class UserController {
 
     @PostMapping("/usuarios/avatar")
     public AvatarDTO upload(
-            @RequestParam("arquivo") MultipartFile arquivo
+            @RequestParam("arquivo") MultipartFile arquivo,
+            Authentication authentication
     ) throws Exception {
 
-        String nome = userService.uploudAvatar(arquivo);
+        Jwt jwt = (Jwt) authentication.getPrincipal();
 
-        return new AvatarDTO(
-                nome,
-                "/usuarios/avatar/" + nome
-        );
+        String email = jwt.getClaimAsString("email");
+
+        return userService.uploadAvatar(arquivo, email);
     }
 
-    @GetMapping("/usuarios/avatar/{arquivo}")
-    public ResponseEntity<Resource> avatar(
-            @PathVariable String arquivo) {
+    @GetMapping("/usuarios/{id}/avatar")
+    public ResponseEntity<Resource> avatar(@PathVariable Long id) {
+        return userService.recuperarAvatar(id);
+    }
 
-        return userService.recuperarAvatar(arquivo);
+    @GetMapping("/usuarios/me")
+    public ResponseEntity<UserProfileDTO> me(Authentication authentication) {
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        String email = jwt.getClaimAsString("email");
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        String avatar = "/api/usuarios/" + user.getId() + "/avatar";
+
+
+        return ResponseEntity.ok(
+                new UserProfileDTO(
+                        user.getId(),
+                        user.getNome(),
+                        user.getEmail(),
+                        user.getNome(),
+                        avatar
+                )
+        );
     }
 
     }

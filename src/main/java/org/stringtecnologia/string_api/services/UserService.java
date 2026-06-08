@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.stringtecnologia.string_api.config.storage.StorageProperties;
 import org.stringtecnologia.string_api.model.dto.UserCreateDTO;
 import org.stringtecnologia.string_api.model.dto.UserDTO;
+import org.stringtecnologia.string_api.model.dto.avatar.AvatarDTO;
 import org.stringtecnologia.string_api.model.entities.User;
 import org.stringtecnologia.string_api.repository.UserRepository;
 
@@ -62,8 +63,15 @@ public class UserService {
         }
     }
 
-    public String uploudAvatar(MultipartFile arquivo)
-            throws IOException {
+    @Transactional
+    public AvatarDTO uploadAvatar(
+            MultipartFile arquivo,
+            String email
+    ) throws IOException {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
 
         String extensao =
                 arquivo.getOriginalFilename()
@@ -89,20 +97,86 @@ public class UserService {
                 StandardCopyOption.REPLACE_EXISTING
         );
 
-        return nomeArquivo;
+        // remove avatar antigo (opcional)
+        if (user.getAvatarUrl() != null &&
+                !user.getAvatarUrl().isBlank()) {
+
+            Path antigo = pasta.resolve(user.getAvatarUrl());
+
+            Files.deleteIfExists(antigo);
+        }
+
+        user.setAvatarUrl(nomeArquivo);
+
+        userRepository.save(user);
+
+        return new AvatarDTO(
+                nomeArquivo,
+                "/api/usuarios/" + user.getId() + "/avatar"
+        );
     }
 
-    public ResponseEntity recuperarAvatar(String arquivo) {
+    public ResponseEntity<Resource> recuperarAvatar(Long id) {
 
-        Path path = Paths.get("documentos/avatar", arquivo);
+        User user = userRepository.findById(id)
+                .orElseThrow();
+
+        String arquivo = user.getAvatarUrl();
+
+        Path path;
+
+        if (arquivo == null || arquivo.isBlank()) {
+
+            path = Paths.get(
+                    storageProperties.getPath(),
+                    "avatar",
+                    "default",
+                    "default.svg"
+            );
+
+        } else {
+
+            path = Paths.get(
+                    storageProperties.getPath(),
+                    "avatar",
+                    arquivo
+            );
+
+        }
 
         Resource resource = new FileSystemResource(path);
 
+        // fallback caso o arquivo salvo no banco não exista mais
         if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
+
+            path = Paths.get(
+                    storageProperties.getPath(),
+                    "avatar",
+                    "default",
+                    "default.svg"
+            );
+
+            resource = new FileSystemResource(path);
         }
+
+        String contentType = "image/jpeg";
+
+        String nomeArquivo = resource.getFilename();
+
+        if (nomeArquivo != null) {
+
+            if (nomeArquivo.endsWith(".png")) {
+                contentType = MediaType.IMAGE_PNG_VALUE;
+            } else if (nomeArquivo.endsWith(".svg")) {
+                contentType = "image/svg+xml";
+            } else if (nomeArquivo.endsWith(".jpeg")
+                    || nomeArquivo.endsWith(".jpg")) {
+                contentType = MediaType.IMAGE_JPEG_VALUE;
+            }
+        }
+
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
     }
 
