@@ -5,7 +5,7 @@ server:
 spring:
   application:
     name: string-api
-     
+
 
   datasource:
     url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api

@@ -2,6 +2,10 @@ package org.stringtecnologia.string_api.resources;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -11,8 +15,10 @@ import org.stringtecnologia.string_api.model.dto.UserCreateDTO;
 import org.stringtecnologia.string_api.model.dto.UserDTO;
 import org.stringtecnologia.string_api.model.dto.avatar.AvatarDTO;
 import org.stringtecnologia.string_api.model.dto.avatar.UserProfileDTO;
+import org.stringtecnologia.string_api.model.dto.cliente.ClienteResponseDTO;
 import org.stringtecnologia.string_api.model.entities.User;
 import org.stringtecnologia.string_api.repository.UserRepository;
+import org.stringtecnologia.string_api.services.ClienteService;
 import org.stringtecnologia.string_api.services.UserService;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,12 +28,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+
 public class UserController {
 
     private final List<UserDTO> users = new CopyOnWriteArrayList<>();
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final ClienteService clienteService;
 
     @GetMapping("/hello")
     public Map<String, Object> hello(Authentication authentication) {
@@ -129,6 +137,30 @@ public class UserController {
                 )
         );
     }
+    @GetMapping("/clientes")
+    public ResponseEntity<Page<ClienteResponseDTO>> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String sort,
+            @RequestParam(required = false) String search) {
+
+        String[] sortParams = sort.split(",");
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(
+                        Sort.Direction.fromString(sortParams[1]),
+                        sortParams[0]
+                )
+        );
+
+        Page<ClienteResponseDTO> resultado =
+                clienteService.listar(pageable, search);
+
+        return ResponseEntity.ok(resultado);
+    }
+
 
     }
 

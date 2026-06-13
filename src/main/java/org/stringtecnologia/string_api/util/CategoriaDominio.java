@@ -10,7 +10,9 @@ public enum CategoriaDominio {
     STATUS_PODER_ADMINISTRATIVO,
     STATUS_NATUREZA_JURIDICA,
     STATUS_ADIANTAMENTO,
-    TIPO_DOCUMENTO;
+    TIPO_DOCUMENTO,
+
+    STATUS_APARELHO;
 
 
     public String getCodigo() {
