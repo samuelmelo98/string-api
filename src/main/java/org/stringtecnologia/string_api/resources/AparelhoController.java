@@ -11,7 +11,7 @@ import org.stringtecnologia.string_api.services.AparelhoService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/aparelhos")
+@RequestMapping("api/aparelhos")
 @RequiredArgsConstructor
 public class AparelhoController {
 

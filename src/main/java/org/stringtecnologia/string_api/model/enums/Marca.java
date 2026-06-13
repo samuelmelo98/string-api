@@ -1,7 +1,7 @@
 package org.stringtecnologia.string_api.model.enums;
 
 public enum Marca {
-    SAMNSUNG,
+    SAMSUNG,
     PHILIPS,
     LG,
     GRADIENTE,

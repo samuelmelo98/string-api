@@ -9,6 +9,7 @@ import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoResponseDTO;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoStatusRequestDTO;
 import org.stringtecnologia.string_api.model.entities.Aparelho;
 import org.stringtecnologia.string_api.model.entities.DominioSistema;
+import org.stringtecnologia.string_api.model.enums.Marca;
 import org.stringtecnologia.string_api.repository.AparelhoRepository;
 import org.stringtecnologia.string_api.util.DominioEnum;
 import org.stringtecnologia.string_api.util.StatusAparelho;
@@ -27,7 +28,7 @@ public class AparelhoService implements AparelhoServiceI {
 
         Aparelho aparelho = new Aparelho();
 
-        aparelho.setMarca(request.marca());
+        aparelho.setMarca(Marca.SAMSUNG);
         aparelho.setModelo(request.modelo());
         aparelho.setModeloComercial(request.modeloComercial());
         aparelho.setNumeroSerie(request.numeroSerie());
