@@ -154,9 +154,44 @@
 
 	</dependencies>
 
+	<profiles>
+
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<properties>
+				<spring.profiles.active>dev</spring.profiles.active>
+				<env.name>DEV</env.name>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>prod</id>
+
+			<properties>
+				<spring.profiles.active>prod</spring.profiles.active>
+				<env.name>PROD</env.name>
+			</properties>
+		</profile>
+
+	</profiles>
+
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>
+						-Dspring.profiles.active=${spring.profiles.active}
+					</jvmArguments>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

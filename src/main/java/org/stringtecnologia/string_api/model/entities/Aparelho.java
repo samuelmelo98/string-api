@@ -30,6 +30,9 @@ public class Aparelho implements Serializable {
             generator = "aparelho_seq"
     )
     private Long aparelhoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private Cliente cliente;
     private Marca marca;
     private String modelo;
     private String modeloComercial;

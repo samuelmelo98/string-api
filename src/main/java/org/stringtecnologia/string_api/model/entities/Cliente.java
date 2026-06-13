@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,6 +26,12 @@ public class Cliente implements Serializable {
             generator = "cliente_seq"
     )
     private Long clienteId;
+    @OneToMany(
+            mappedBy = "cliente",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Aparelho> aparelhos = new ArrayList<>();
     private String nome;
     private String cpf;
     private String email;
