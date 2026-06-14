@@ -124,7 +124,7 @@ public class UserController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        String avatar = "/api/usuarios/" + user.getId() + "/avatar";
+        String avatar = "/usuarios/" + user.getId() + "/avatar";
 
 
         return ResponseEntity.ok(

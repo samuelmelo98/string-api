@@ -33,11 +33,11 @@ public class Aparelho implements Serializable {
             generator = "aparelho_seq"
     )
     private Long aparelhoId;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MARCA", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "MARCA", nullable = false)
     private Marca marca;
     private String modelo;
     private String modeloComercial;
