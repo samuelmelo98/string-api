@@ -1,6 +1,8 @@
 package org.stringtecnologia.string_api.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +52,12 @@ public class AparelhoService implements AparelhoServiceI {
 
     @Override
     public List<AparelhoResponseDTO> listar() {
-        return List.of();
+
+        return aparelhoRepository
+                .findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
@@ -92,4 +99,20 @@ public class AparelhoService implements AparelhoServiceI {
                 aparelho.getObservacao()
         );
     }
+
+    @Override
+    public Page<AparelhoResponseDTO> listarPorCliente(
+            Long clienteId,
+            Pageable pageable
+    ) {
+
+        return aparelhoRepository
+                .findByClienteClienteId(
+                        clienteId,
+                        pageable
+                )
+                .map(this::toResponse);
+    }
+
+
 }

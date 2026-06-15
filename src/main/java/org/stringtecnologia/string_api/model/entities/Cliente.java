@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public class Cliente implements Serializable {
     private List<Aparelho> aparelhos = new ArrayList<>();
     private String nome;
     private String cpf;
+    @Column(name = "data_nascimento")
+    private LocalDate dataNascimento;
     private String email;
     private String telefone;
     private String endereco;

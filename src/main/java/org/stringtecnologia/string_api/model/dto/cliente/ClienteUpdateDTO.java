@@ -1,15 +1,17 @@
 package org.stringtecnologia.string_api.model.dto.cliente;
 
-import java.time.LocalDate;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-public record ClienteResponseDTO(
+public record ClienteUpdateDTO(
 
-        Long clienteId,
-
+        @NotBlank
         String nome,
 
+        @NotBlank
         String cpf,
 
+        @Email
         String email,
 
         String telefone,
@@ -20,9 +22,7 @@ public record ClienteResponseDTO(
 
         String estado,
 
-        String cep,
-
-        LocalDate dataNascimento
+        String cep
 
 ) {
 }

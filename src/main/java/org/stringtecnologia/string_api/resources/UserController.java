@@ -137,7 +137,7 @@ public class UserController {
                 )
         );
     }
-    @GetMapping("/clientes")
+    @GetMapping("/clientes2")
     public ResponseEntity<Page<ClienteResponseDTO>> listar(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

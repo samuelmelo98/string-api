@@ -8,6 +8,8 @@ import org.stringtecnologia.string_api.integration.infosimples.config.Infosimple
 import org.stringtecnologia.string_api.integration.infosimples.dto.CpfResultResponseDTO;
 import org.stringtecnologia.string_api.integration.infosimples.dto.RestricaoSolicitacaoResponseDTO;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +64,10 @@ public class InfosimplesCpfAdapter {
         return new RestricaoSolicitacaoResponseDTO(
                 idMapeado,
                 item.nome(),
+                LocalDate.parse(
+                        item.dataNascimento(),
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                ),
                 item.cpf(), // ou matricula se aplicar no seu caso
                 ativoConvertido,
                 false

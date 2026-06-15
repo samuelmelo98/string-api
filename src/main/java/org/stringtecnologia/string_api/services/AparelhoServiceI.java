@@ -1,5 +1,7 @@
 package org.stringtecnologia.string_api.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoRequestDTO;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoResponseDTO;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoStatusRequestDTO;
@@ -20,4 +22,9 @@ public interface AparelhoServiceI {
                                       AparelhoStatusRequestDTO request);
 
     void excluir(Long id);
+
+    Page<AparelhoResponseDTO> listarPorCliente(
+            Long clienteId,
+            Pageable pageable
+    );
 }

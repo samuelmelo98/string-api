@@ -1,6 +1,8 @@
 package org.stringtecnologia.string_api.resources;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoRequestDTO;
@@ -15,25 +17,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AparelhoController {
 
-    private final AparelhoService service;
+    private final AparelhoService aparelhoService;
 
     @PostMapping
     public ResponseEntity<AparelhoResponseDTO> criar(
             @RequestBody AparelhoRequestDTO request
     ) {
-        return ResponseEntity.ok(service.criar(request));
+        return ResponseEntity.ok(aparelhoService.criar(request));
     }
 
     @GetMapping
     public ResponseEntity<List<AparelhoResponseDTO>> listar() {
-        return ResponseEntity.ok(service.listar());
+
+        return ResponseEntity.ok(aparelhoService.listar());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AparelhoResponseDTO> buscarPorId(
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+        return ResponseEntity.ok(aparelhoService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
@@ -41,7 +44,7 @@ public class AparelhoController {
             @PathVariable Long id,
             @RequestBody AparelhoRequestDTO request
     ) {
-        return ResponseEntity.ok(service.atualizar(id, request));
+        return ResponseEntity.ok(aparelhoService.atualizar(id, request));
     }
 
     @PatchMapping("/{id}/status")
@@ -49,14 +52,28 @@ public class AparelhoController {
             @PathVariable Long id,
             @RequestBody AparelhoStatusRequestDTO request
     ) {
-        return ResponseEntity.ok(service.alterarStatus(id, request));
+        return ResponseEntity.ok(aparelhoService.alterarStatus(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(
             @PathVariable Long id
     ) {
-        service.excluir(id);
+        aparelhoService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<Page<AparelhoResponseDTO>> listarPorCliente(
+            @PathVariable Long clienteId,
+            Pageable pageable
+    ) {
+
+        return ResponseEntity.ok(
+                aparelhoService.listarPorCliente(
+                        clienteId,
+                        pageable
+                )
+        );
     }
 }
