@@ -11,6 +11,7 @@ import org.thymeleaf.context.Context;
 
 import java.beans.PropertyDescriptor;
 import java.util.Locale;
+import java.util.Map;
 
 
 @Component
@@ -23,29 +24,17 @@ public class ThymeleafDocumentoProcessor implements DocumentoProcessor {
     @Override
     public String process(
             String template,
-            Object data
+            Map<String,Object> dados
     ) {
 
-        Context context = new Context(
-                Locale.forLanguageTag("pt-BR")
-        );
-
-        BeanWrapper wrapper =
-                new BeanWrapperImpl(data);
-
-        for (PropertyDescriptor pd :
-                wrapper.getPropertyDescriptors()) {
-
-            String nome = pd.getName();
-
-            if (!"class".equals(nome)) {
-
-                context.setVariable(
-                        nome,
-                        wrapper.getPropertyValue(nome)
+        Context context =
+                new Context(
+                        Locale.forLanguageTag("pt-BR")
                 );
-            }
-        }
+
+        dados.forEach(
+                context::setVariable
+        );
 
         return templateEngine.process(
                 template,

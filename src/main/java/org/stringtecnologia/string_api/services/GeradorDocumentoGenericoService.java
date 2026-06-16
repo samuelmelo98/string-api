@@ -7,6 +7,8 @@ import org.stringtecnologia.string_api.documento.dto.DocumentoResponseDTO;
 import org.stringtecnologia.string_api.util.HtmlNormalizerUtil;
 import org.stringtecnologia.string_api.util.TipoDocumentoDominio;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class GeradorDocumentoGenericoService {
@@ -52,19 +54,21 @@ public class GeradorDocumentoGenericoService {
             );
         }
 
-    public <T> byte[] gerarPdfSemSalvar(
+    public byte[] gerarPdfSemSalvar(
             String slug,
-            T dto
+            Map<String,Object> dados
     ) {
 
         String html =
-                documentoTemplateService.gerar(
-                        slug,
-                        dto
-                );
+                documentoTemplateService
+                        .gerar(
+                                slug,
+                                dados
+                        );
 
-        return pdfGeneratorPlaywrightService.generate(
-                HtmlNormalizerUtil.normalize(html)
-        );
+        return pdfGeneratorPlaywrightService
+                .generate(
+                        HtmlNormalizerUtil.normalize(html)
+                );
     }
     }

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -187,11 +188,13 @@ System.out.println("RemoteAddr: " + request.getRemoteAddr());
     @GetMapping("/pdf/teste")
     public ResponseEntity<byte[]> gerarPdfTeste() {
 
+
         byte[] pdf =
                 geradorDocumentoGenericoService
                         .gerarPdfSemSalvar(
-                                "teste",
-                                geraModeloDoc()
+                                "ordem-servico",
+                                geraModeloDocMap2()
+
                         );
 
         return ResponseEntity
@@ -247,4 +250,190 @@ private RelatorioTesteDTO geraModeloDoc(){
             );
     return dto;
 }
+
+    private Map<String, Object> geraModeloDocMap() {
+
+        Map<String, Object> dados =
+                new HashMap<>();
+
+        dados.put(
+                "titulo",
+                "Relatório Completo Thymeleaf"
+        );
+
+        dados.put(
+                "responsavel",
+                "Samuel Silva"
+        );
+
+        dados.put(
+                "dataEmissao",
+                LocalDate.now()
+        );
+
+        dados.put(
+                "valorTotal",
+                BigDecimal.valueOf(1500.75)
+        );
+
+        dados.put(
+                "aprovado",
+                true
+        );
+
+        dados.put(
+                "site",
+                "https://site-html.cluster.stringtecnologiadf.org"
+        );
+
+        dados.put(
+                "cliente",
+                new ClienteDTO(
+                        "Empresa XPTO",
+                        "contato@empresa.com",
+                        "(61) 99999-9999"
+                )
+        );
+
+        dados.put(
+                "itens",
+                List.of(
+
+                        new ItemDTO(
+                                1L,
+                                "Notebook Dell",
+                                2,
+                                BigDecimal.valueOf(3500)
+                        ),
+
+                        new ItemDTO(
+                                2L,
+                                "Monitor LG",
+                                1,
+                                BigDecimal.valueOf(1200)
+                        )
+
+                )
+        );
+
+        return dados;
+    }
+
+    private Map<String, Object> geraModeloDocMap2() {
+
+        Map<String, Object> dados = new HashMap<>();
+
+        dados.put(
+                "empresa",
+                Map.of(
+                        "logo",
+                        "https://stringtecnologiadf.org/logo.png",
+                        "nome",
+                        "String Tecnologia",
+                        "cnpj",
+                        "12.345.678/0001-99",
+                        "endereco",
+                        "Av. Central, 1000 - Brasília/DF",
+                        "telefone",
+                        "(61) 99999-9999",
+                        "email",
+                        "contato@stringtecnologia.com.br"
+                )
+        );
+
+        dados.put(
+                "cliente",
+                Map.of(
+                        "nome",
+                        "Samuel Silva",
+                        "cpf",
+                        "123.456.789-00",
+                        "telefone",
+                        "(61) 98888-7777",
+                        "email",
+                        "samuel@email.com",
+                        "endereco",
+                        "Rua Exemplo, 123"
+                )
+        );
+
+        dados.put(
+                "aparelho",
+                Map.of(
+                        "tipo",
+                        "NOTEBOOK",
+                        "marca",
+                        "DELL",
+                        "modelo",
+                        "Inspiron 15",
+                        "numeroSerie",
+                        "ABC123XYZ",
+                        "acessorios",
+                        "Fonte Original",
+                        "estadoFisico",
+                        "Bom estado geral"
+                )
+        );
+
+        dados.put(
+                "os",
+                Map.of(
+                        "numero",
+                        "OS-2026-00001",
+                        "dataEmissao",
+                        LocalDate.now().format(
+                                DateTimeFormatter.ofPattern(
+                                        "dd/MM/yyyy"
+                                )
+                        ),
+                        "tipoServico",
+                        "Manutenção",
+                        "prioridade",
+                        "Normal",
+                        "descricaoProblema",
+                        """
+                        Equipamento não liga.
+                        Cliente relata desligamento repentino.
+                        Necessária análise técnica completa.
+                        """,
+                        "valorTotal",
+                        "350,00"
+                )
+        );
+
+        dados.put(
+                "itens",
+                List.of(
+
+                        Map.of(
+                                "id",
+                                1L,
+                                "descricao",
+                                "Limpeza interna",
+                                "quantidade",
+                                1,
+                                "valorUnitario",
+                                "150,00",
+                                "valorTotal",
+                                "150,00"
+                        ),
+
+                        Map.of(
+                                "id",
+                                2L,
+                                "descricao",
+                                "Troca de SSD",
+                                "quantidade",
+                                1,
+                                "valorUnitario",
+                                "200,00",
+                                "valorTotal",
+                                "200,00"
+                        )
+
+                )
+        );
+
+        return dados;
+    }
 }

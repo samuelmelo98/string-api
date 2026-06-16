@@ -16,6 +16,8 @@ import org.stringtecnologia.string_api.repository.AparelhoRepository;
 import org.stringtecnologia.string_api.util.DominioEnum;
 import org.stringtecnologia.string_api.util.StatusAparelho;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -96,6 +98,7 @@ public class AparelhoService implements AparelhoServiceI {
                 aparelho.getStatusAparelho() != null
                         ? aparelho.getStatusAparelho().getDescricao()
                         : null,
+                aparelho.getDataCadastro(),
                 aparelho.getObservacao()
         );
     }
