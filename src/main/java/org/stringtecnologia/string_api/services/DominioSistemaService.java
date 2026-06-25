@@ -1,7 +1,10 @@
 package org.stringtecnologia.string_api.services;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.stringtecnologia.string_api.config.redis.CacheNames;
 import org.stringtecnologia.string_api.model.dto.dominio.sistema.DominioSistemaResponseDTO;
 import org.stringtecnologia.string_api.model.entities.DominioSistema;
 import org.stringtecnologia.string_api.repository.SistemaDominioRepository;
@@ -109,5 +112,28 @@ public class DominioSistemaService {
         return sistemaDominioRepository.findByCategoriaAndCodigoAndAtivoTrue(
                 "STATUS_EXERCICIO", "FECHADO"
         ).orElseThrow();
+    }
+
+    /**
+     * Retorna todos os domínios do sistema.
+     *
+     * Na primeira chamada consulta o PostgreSQL e armazena o resultado no Redis.
+     * As próximas chamadas retornam os dados diretamente do cache, evitando
+     * novas consultas ao banco.
+     */
+    @Cacheable(CacheNames.DOMINIO_SISTEMA)
+    public List<DominioSistema> listarTodos() {
+        return sistemaDominioRepository.findAll();
+    }
+
+    /**
+     * Persiste um domínio do sistema.
+     *
+     * Após salvar, remove todas as entradas do cache de domínios para garantir
+     * que a próxima consulta recarregue os dados atualizados do PostgreSQL.
+     */
+    @CacheEvict(value = CacheNames.DOMINIO_SISTEMA, allEntries = true)
+    public DominioSistema salvar(DominioSistema dominioSistema) {
+        return sistemaDominioRepository.save(dominioSistema);
     }
 }

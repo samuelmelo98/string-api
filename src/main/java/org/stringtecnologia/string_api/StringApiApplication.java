@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.stringtecnologia.string_api.services.DominioSistemaService;
 
 import javax.sql.DataSource;
 
@@ -13,10 +15,13 @@ import javax.sql.DataSource;
 //@EnableCaching
 //@EnableMethodSecurity
 @SpringBootApplication
+@EnableCaching
 public class StringApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StringApiApplication.class, args);
+
+
 	}
 	/*@Bean
 	CommandLineRunner testConnection(DataSource dataSource) {
@@ -26,4 +31,26 @@ public class StringApiApplication {
 			}
 		};
 	}*/
+
+	@Bean
+	CommandLineRunner testeRedis(StringRedisTemplate redisTemplate) {
+		return args -> {
+			redisTemplate.opsForValue().set("teste", "ok");
+			System.out.println("REDIS -> " + redisTemplate.opsForValue().get("teste"));
+		};
+	}
+
+	@Bean
+	CommandLineRunner testeCache(DominioSistemaService dominioSistemaService) {
+		return args -> {
+
+			System.out.println("Primeira chamada");
+			System.out.println(dominioSistemaService.listarTodos());
+
+			System.out.println("Segunda chamada");
+			System.out.println(dominioSistemaService.listarTodos());
+
+		};
+	}
+
 }

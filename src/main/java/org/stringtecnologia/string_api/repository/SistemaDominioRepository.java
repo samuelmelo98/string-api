@@ -14,4 +14,6 @@ public interface SistemaDominioRepository extends JpaRepository<DominioSistema, 
     );
 
     List<DominioSistema> findByCategoriaAndAtivoTrueOrderByDescricaoAsc(String categoria);
+
+
 }

@@ -12,6 +12,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@CacheEvict(value = "dominioSistema", allEntries = true)
 public class DominioSistema implements Serializable {
 
     @Id

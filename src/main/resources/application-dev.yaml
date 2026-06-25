@@ -3,6 +3,18 @@ spring:
     activate:
       on-profile: dev
 
+  #----------------------------------------------
+  #Redis
+  #----------------------------------------------
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: servidor-b
+      port: 6379
+      password: ${REDIS_PASSWORD}
+
 app:
   frontend-url: https://stringtecnologiadf.org:4200
   storage:
