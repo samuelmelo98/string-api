@@ -6,7 +6,6 @@ spring:
   application:
     name: string-api
 
-
   datasource:
     url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api
     username: ${USUARIO}
@@ -15,10 +14,9 @@ spring:
     hikari:
       connection-timeout: 60000
 
-
   jpa:
     hibernate:
-      ddl-auto: none   # ou validate / update (depende do seu cenário)
+      ddl-auto: none
     properties:
       jakarta.persistence.query.timeout: 300000
       hibernate:
@@ -34,12 +32,20 @@ spring:
         jwt:
           jwk-set-uri: https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/certs
 
+storage:
+  provider: minio
+
+minio:
+  endpoint: https://minio.cluster.stringtecnologiadf.org
+  bucket: string-api
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+
 logging:
   level:
     root: INFO
   pattern:
     dateformat: dd/MM/yyyy HH:mm:ss.SSS
-
 
 api:
   infosimples:
@@ -47,13 +53,6 @@ api:
     api-key: ${KEY}
     time-out: 30s
 
-
-
-
-
-# =========================================================
-# STORAGE
-# =========================================================
 app:
   storage:
     max-size: 5MB
