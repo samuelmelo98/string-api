@@ -106,7 +106,7 @@ public class UserController {
 
         String email = jwt.getClaimAsString("email");
 
-        return userService.uploadAvatar(arquivo, email);
+         return userService.uploadAvatar(arquivo, email);
     }
 
     @GetMapping("/usuarios/{id}/avatar")

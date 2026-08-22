@@ -5,6 +5,10 @@ server:
 spring:
   application:
     name: string-api
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   datasource:
     url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api
@@ -55,7 +59,7 @@ api:
 
 app:
   storage:
-    max-size: 5MB
+    max-size: 10MB
 
     allowed-types:
       - application/pdf
