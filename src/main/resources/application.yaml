@@ -67,6 +67,10 @@ api:
     token-refresh-skew: ${STRING_EMAIL_TOKEN_REFRESH_SKEW:30s}
 
 app:
+  email-test:
+    enabled: ${APP_EMAIL_TEST_ENABLED:false}
+    to: ${APP_EMAIL_TEST_TO:}
+
   storage:
     max-size: 10MB
 
