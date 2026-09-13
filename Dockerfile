@@ -13,10 +13,15 @@ COPY src src
 
 RUN mvn -B clean package -DskipTests
 
+
 # ==================================================
 # RUNTIME
 # ==================================================
 FROM eclipse-temurin:21-jre-jammy
+
+# Versao da aplicacao recebida durante o docker build
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
 
 RUN apt-get update && apt-get install -y \
     libglib2.0-0 \

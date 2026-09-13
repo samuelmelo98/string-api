@@ -49,7 +49,7 @@ jobs:
 
       # 🐳 build docker
       - name: Build Docker
-        run: docker build -t $IMAGE .
+        run: docker build --build-arg APP_VERSION="${{ github.event.inputs.version }}" -t $IMAGE .
 
       # 🔐 login GHCR
       - name: Login GHCR
