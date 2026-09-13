@@ -1,56 +1,16 @@
 package org.stringtecnologia.string_api;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.stringtecnologia.string_api.services.DominioSistemaService;
-
-import javax.sql.DataSource;
 
 @ConfigurationPropertiesScan
-//@EnableCaching
-//@EnableMethodSecurity
 @SpringBootApplication
 @EnableCaching
 public class StringApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StringApiApplication.class, args);
-
-
 	}
-	/*@Bean
-	CommandLineRunner testConnection(DataSource dataSource) {
-		return args -> {
-			try (var conn = dataSource.getConnection()) {
-				System.out.println("🔥 CONECTOU NO BANCO COM SUCESSO!!!!");
-			}
-		};
-	}*/
-
-	@Bean
-	CommandLineRunner testeRedis(StringRedisTemplate redisTemplate) {
-		return args -> {
-			redisTemplate.opsForValue().set("teste", "ok");
-			System.out.println("REDIS -> " + redisTemplate.opsForValue().get("teste"));
-		};
-	}
-
-	@Bean
-	CommandLineRunner testeCache(DominioSistemaService dominioSistemaService) {
-		return args -> {
-
-			System.out.println("Primeira chamada");
-			System.out.println(dominioSistemaService.listarTodos());
-
-			System.out.println("Segunda chamada");
-			System.out.println(dominioSistemaService.listarTodos());
-
-		};
-	}
-
 }
