@@ -57,6 +57,15 @@ api:
     api-key: ${KEY}
     time-out: 30s
 
+  string-email:
+    api-base-url: ${STRING_EMAIL_URL:http://string-email:8080}
+    token-url: ${STRING_EMAIL_TOKEN_URL:https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/token}
+    client-id: ${STRING_EMAIL_CLIENT_ID:string-api-email}
+    client-secret: ${STRING_EMAIL_CLIENT_SECRET:}
+    connect-timeout: ${STRING_EMAIL_CONNECT_TIMEOUT:5s}
+    read-timeout: ${STRING_EMAIL_READ_TIMEOUT:15s}
+    token-refresh-skew: ${STRING_EMAIL_TOKEN_REFRESH_SKEW:30s}
+
 app:
   storage:
     max-size: 10MB
