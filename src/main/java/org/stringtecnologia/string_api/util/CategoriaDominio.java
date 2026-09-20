@@ -2,6 +2,7 @@ package org.stringtecnologia.string_api.util;
 
 public enum CategoriaDominio {
 
+
     STATUS_ATIVO,
     STATUS_PEDIDO,
     STATUS_EXERCICIO,
@@ -12,7 +13,8 @@ public enum CategoriaDominio {
     STATUS_ADIANTAMENTO,
     TIPO_DOCUMENTO,
 
-    STATUS_APARELHO;
+    STATUS_APARELHO,
+    STATUS_ORDEM_SERVICO;
 
 
     public String getCodigo() {

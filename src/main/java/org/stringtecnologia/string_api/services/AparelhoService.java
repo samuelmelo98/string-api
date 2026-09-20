@@ -3,21 +3,18 @@ package org.stringtecnologia.string_api.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoRequestDTO;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoResponseDTO;
 import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoStatusRequestDTO;
-import org.stringtecnologia.string_api.model.entities.Aparelho;
-import org.stringtecnologia.string_api.model.entities.DominioSistema;
-import org.stringtecnologia.string_api.model.enums.Marca;
+import org.stringtecnologia.string_api.model.entities.*;
+import org.stringtecnologia.string_api.model.factory.aparelho.AparelhoFactory;
 import org.stringtecnologia.string_api.repository.AparelhoRepository;
-import org.stringtecnologia.string_api.util.DominioEnum;
+import org.stringtecnologia.string_api.repository.ClienteRepository;
 import org.stringtecnologia.string_api.util.StatusAparelho;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -25,31 +22,53 @@ import java.util.List;
 public class AparelhoService implements AparelhoServiceI {
     private final AparelhoRepository aparelhoRepository;
     private final DominioSistemaService dominioSistemaService;
+    private final ClienteRepository clienteRepository;
+    private final MarcaService marcaService;
+    private final AparelhoFactory  aparelhoFactory;
+    private final TipoAparelhoService tipoAparelhoService;
 
     @Override
     @Transactional
     public AparelhoResponseDTO criar(AparelhoRequestDTO request) {
+        Long clienteId = request.clienteId();
 
-        Aparelho aparelho = new Aparelho();
+        if (clienteId == null || clienteId <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Informe um cliente válido."
+            );
+        }
 
-        aparelho.setMarca(Marca.SAMSUNG);
-        aparelho.setModelo(request.modelo());
-        aparelho.setModeloComercial(request.modeloComercial());
-        aparelho.setNumeroSerie(request.numeroSerie());
-        aparelho.setDescricao(request.descricao());
-        aparelho.setTipo(request.tipo());
-        aparelho.setDefeito(request.defeito());
-        aparelho.setObservacao(request.observacao());
-        aparelho.setFimGarantia(request.fimGarantia());
-        aparelho.setStatusAparelho(
-                dominioSistemaService.buscar(
-                        StatusAparelho.PARA_ORCAMENTO
-                )
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cliente não encontrado."
+                ));
+
+        Marca marca = marcaService.buscarAtiva(
+                request.marcaId()
         );
 
-        aparelho = aparelhoRepository.save(aparelho);
+        TipoAparelho tipoAparelho = tipoAparelhoService.buscarAtivo(
+                request.tipoAparelhoId()
+        );
 
-        return this.toResponse(aparelho);
+        DominioSistema statusInicial = dominioSistemaService.buscar(
+                StatusAparelho.PARA_ORCAMENTO
+        );
+
+        Aparelho aparelho = aparelhoFactory.criar(
+                request,
+                marca,
+                tipoAparelho,
+                statusInicial
+        );
+
+        aparelho.setCliente(cliente);
+
+        Aparelho salvo = aparelhoRepository.save(aparelho);
+
+        return toResponse(salvo);
     }
 
     @Override
@@ -87,7 +106,7 @@ public class AparelhoService implements AparelhoServiceI {
         return new AparelhoResponseDTO(
                 aparelho.getAparelhoId(),
                 aparelho.getMarca() != null
-                        ? aparelho.getMarca().name()
+                        ? aparelho.getMarca().getNome()
                         : null,
                 aparelho.getModelo(),
                 aparelho.getModeloComercial(),
