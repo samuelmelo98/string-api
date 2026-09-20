@@ -12,6 +12,7 @@ import org.stringtecnologia.string_api.config.storage.StorageProperties;
 import org.stringtecnologia.string_api.model.dto.UserCreateDTO;
 import org.stringtecnologia.string_api.model.dto.UserDTO;
 import org.stringtecnologia.string_api.model.dto.avatar.AvatarDTO;
+import org.stringtecnologia.string_api.model.dto.tecnico.TecnicoResponseDTO;
 import org.stringtecnologia.string_api.model.entities.User;
 import org.stringtecnologia.string_api.repository.UserRepository;
 
@@ -23,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
 
 @Service
 @Transactional
@@ -178,6 +180,21 @@ public class UserService {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
+    }
+
+    public List<TecnicoResponseDTO> listarTecnicosAtivos() {
+
+        return userRepository
+                .findByAtivoTrueOrderByNomeAsc()
+                .stream()
+                .map(user ->
+                        new TecnicoResponseDTO(
+                                user.getId(),
+                                user.getNome(),
+                                user.getEmail()
+                        )
+                )
+                .toList();
     }
 
 

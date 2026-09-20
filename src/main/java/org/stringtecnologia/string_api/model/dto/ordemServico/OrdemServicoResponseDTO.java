@@ -39,6 +39,12 @@ public record OrdemServicoResponseDTO(
 
         BigDecimal valorFinal,
 
+        Long tecnicoResponsavelId,
+
+        String tecnicoResponsavelNome,
+
+        LocalDateTime dataAtribuicaoTecnico,
+
         LocalDateTime dataAbertura,
 
         LocalDateTime dataAtualizacao,

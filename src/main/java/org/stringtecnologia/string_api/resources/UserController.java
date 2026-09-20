@@ -16,6 +16,7 @@ import org.stringtecnologia.string_api.model.dto.UserDTO;
 import org.stringtecnologia.string_api.model.dto.avatar.AvatarDTO;
 import org.stringtecnologia.string_api.model.dto.avatar.UserProfileDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteResponseDTO;
+import org.stringtecnologia.string_api.model.dto.tecnico.TecnicoResponseDTO;
 import org.stringtecnologia.string_api.model.entities.User;
 import org.stringtecnologia.string_api.repository.UserRepository;
 import org.stringtecnologia.string_api.services.ClienteService;
@@ -159,6 +160,13 @@ public class UserController {
                 clienteService.listar(pageable, search);
 
         return ResponseEntity.ok(resultado);
+    }
+    @GetMapping("/usuarios/tecnicos")
+    public ResponseEntity<List<TecnicoResponseDTO>> listarTecnicos() {
+
+        return ResponseEntity.ok(
+                userService.listarTecnicosAtivos()
+        );
     }
 
 

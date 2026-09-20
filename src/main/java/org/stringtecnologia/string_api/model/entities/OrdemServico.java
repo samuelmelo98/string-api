@@ -68,6 +68,21 @@ public class OrdemServico implements Serializable {
     )
     private Aparelho aparelho;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "tecnico_responsavel_id",
+            foreignKey = @ForeignKey(
+                    name = "fk_ordem_servico_tecnico"
+            )
+    )
+    private User tecnicoResponsavel;
+
+
+    @Column(
+            name = "data_atribuicao_tecnico"
+    )
+    private LocalDateTime dataAtribuicaoTecnico;
+
     @ManyToOne(
             fetch = FetchType.LAZY,
             optional = false
@@ -139,4 +154,6 @@ public class OrdemServico implements Serializable {
 
     @Column(name = "data_entrega")
     private LocalDateTime dataEntrega;
+
+
 }

@@ -6,19 +6,17 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
-import org.stringtecnologia.string_api.integration.infosimples.adapter.InfosimplesCpfAdapter;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteCreateDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteResponseDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteUpdateDTO;
 
 import org.stringtecnologia.string_api.services.ClienteService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +24,7 @@ import java.util.List;
 public class ClienteController {
 
     private final ClienteService clienteService;
-    private final InfosimplesCpfAdapter infosimplesCpfAdapter;
+
 
     @PostMapping
     public ResponseEntity<ClienteResponseDTO> criar(
@@ -40,19 +38,36 @@ public class ClienteController {
                 );
     }
 
+
     @GetMapping
     public ResponseEntity<Page<ClienteResponseDTO>> listar(
             Pageable pageable,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "true") Boolean ativo
     ) {
 
         return ResponseEntity.ok(
                 clienteService.listar(
                         pageable,
-                        search
+                        search,
+                        ativo
                 )
         );
     }
+
+
+    @GetMapping("/existe-cpf")
+    public ResponseEntity<Boolean> existePorCpf(
+            @RequestParam String cpf
+    ) {
+
+        return ResponseEntity.ok(
+                clienteService.existePorCpf(
+                        cpf
+                )
+        );
+    }
+
 
     @GetMapping("/{clienteId}")
     public ResponseEntity<ClienteResponseDTO> buscarPorId(
@@ -60,9 +75,12 @@ public class ClienteController {
     ) {
 
         return ResponseEntity.ok(
-                clienteService.buscarPorId(clienteId)
+                clienteService.buscarPorId(
+                        clienteId
+                )
         );
     }
+
 
     @PutMapping("/{clienteId}")
     public ResponseEntity<ClienteResponseDTO> atualizar(
@@ -78,13 +96,38 @@ public class ClienteController {
         );
     }
 
+
+    /**
+     * Exclusão lógica:
+     *
+     * ativo = false
+     */
     @DeleteMapping("/{clienteId}")
     public ResponseEntity<Void> excluir(
             @PathVariable Long clienteId
     ) {
 
-        clienteService.excluir(clienteId);
+        clienteService.excluir(
+                clienteId
+        );
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+
+    @PatchMapping("/{clienteId}/reativar")
+    public ResponseEntity<Void> reativar(
+            @PathVariable Long clienteId
+    ) {
+
+        clienteService.reativar(
+                clienteId
+        );
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

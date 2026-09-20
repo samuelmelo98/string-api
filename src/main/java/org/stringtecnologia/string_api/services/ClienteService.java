@@ -16,13 +16,12 @@ import org.stringtecnologia.string_api.model.entities.Cliente;
 
 import org.stringtecnologia.string_api.repository.ClienteRepository;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+
 
     public ClienteResponseDTO criar(
             ClienteCreateDTO dto
@@ -31,7 +30,11 @@ public class ClienteService {
         Cliente cliente = new Cliente();
 
         cliente.setNome(dto.nome());
-        cliente.setCpf(dto.cpf());
+
+        cliente.setCpf(
+                normalizarCpf(dto.cpf())
+        );
+
         cliente.setEmail(dto.email());
         cliente.setTelefone(dto.telefone());
         cliente.setEndereco(dto.endereco());
@@ -39,26 +42,64 @@ public class ClienteService {
         cliente.setEstado(dto.estado());
         cliente.setCep(dto.cep());
 
+        cliente.setAtivo(true);
+
         return toResponse(
                 clienteRepository.save(cliente)
         );
     }
 
+
     public Cliente salvar(
             Cliente cliente
     ) {
-        return clienteRepository.save(cliente);
+
+        if (cliente.getCpf() != null) {
+            cliente.setCpf(
+                    normalizarCpf(
+                            cliente.getCpf()
+                    )
+            );
+        }
+
+        if (cliente.getAtivo() == null) {
+            cliente.setAtivo(true);
+        }
+
+        return clienteRepository.save(
+                cliente
+        );
     }
+
 
     public Page<ClienteResponseDTO> listar(
             Pageable pageable,
             String search
     ) {
 
+        return listar(
+                pageable,
+                search,
+                true
+        );
+    }
+
+
+    public Page<ClienteResponseDTO> listar(
+            Pageable pageable,
+            String search,
+            Boolean ativo
+    ) {
+
+        String termo =
+                search == null
+                        ? ""
+                        : search.trim();
+
         return clienteRepository
-                .findByNomeContainingIgnoreCaseOrCpfContaining(
-                        search == null ? "" : search,
-                        search == null ? "" : search,
+                .buscar(
+                        termo,
+                        ativo,
                         pageable
                 )
                 .map(this::toResponse);
@@ -68,39 +109,57 @@ public class ClienteService {
             Long clienteId
     ) {
 
-        Cliente cliente = clienteRepository
-                .findById(clienteId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Cliente não encontrado"
-                        ));
+        Cliente cliente =
+                clienteRepository
+                        .findById(clienteId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Cliente não encontrado"
+                                        )
+                        );
 
         return toResponse(cliente);
     }
+
 
     public Cliente buscarCliente(
             String cpf
     ) {
 
+        if (cpf == null || cpf.isBlank()) {
+            return null;
+        }
+
         return clienteRepository
-                .findByCpf(cpf)
+                .findByCpf(
+                        normalizarCpf(cpf)
+                )
                 .orElse(null);
     }
+
 
     public ClienteResponseDTO atualizar(
             Long clienteId,
             ClienteUpdateDTO dto
     ) {
 
-        Cliente cliente = clienteRepository
-                .findById(clienteId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Cliente não encontrado"
-                        ));
+        Cliente cliente =
+                clienteRepository
+                        .findById(clienteId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Cliente não encontrado"
+                                        )
+                        );
 
         cliente.setNome(dto.nome());
-        cliente.setCpf(dto.cpf());
+
+        cliente.setCpf(
+                normalizarCpf(dto.cpf())
+        );
+
         cliente.setEmail(dto.email());
         cliente.setTelefone(dto.telefone());
         cliente.setEndereco(dto.endereco());
@@ -109,22 +168,69 @@ public class ClienteService {
         cliente.setCep(dto.cep());
 
         return toResponse(
-                clienteRepository.save(cliente)
+                clienteRepository.save(
+                        cliente
+                )
         );
     }
 
+
+    /**
+     * Exclusão lógica.
+     *
+     * Não remove cliente, aparelhos
+     * ou ordens de serviço do banco.
+     */
     public void excluir(
             Long clienteId
     ) {
 
-        if (!clienteRepository.existsById(clienteId)) {
-            throw new RuntimeException(
-                    "Cliente não encontrado"
-            );
+        Cliente cliente =
+                clienteRepository
+                        .findById(clienteId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Cliente não encontrado"
+                                        )
+                        );
+
+        if (Boolean.FALSE.equals(
+                cliente.getAtivo()
+        )) {
+
+            return;
         }
 
-        clienteRepository.deleteById(clienteId);
+        cliente.setAtivo(false);
+
+        clienteRepository.save(
+                cliente
+        );
     }
+
+
+    public void reativar(
+            Long clienteId
+    ) {
+
+        Cliente cliente =
+                clienteRepository
+                        .findById(clienteId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Cliente não encontrado"
+                                        )
+                        );
+
+        cliente.setAtivo(true);
+
+        clienteRepository.save(
+                cliente
+        );
+    }
+
 
     public Cliente criarCliente(
             RestricaoSolicitacaoResponseDTO dto
@@ -132,11 +238,14 @@ public class ClienteService {
 
         Cliente cliente = new Cliente();
 
-        cliente.setNome(dto.nome());
+        cliente.setNome(
+                dto.nome()
+        );
 
         cliente.setCpf(
-                dto.matricula()
-                        .replaceAll("\\D", "")
+                normalizarCpf(
+                        dto.matricula()
+                )
         );
 
         cliente.setEmail(null);
@@ -146,8 +255,44 @@ public class ClienteService {
         cliente.setEstado(null);
         cliente.setCep(null);
 
+        cliente.setAtivo(true);
+
         return cliente;
     }
+
+
+    public boolean existePorCpf(
+            String cpf
+    ) {
+
+        if (
+                cpf == null ||
+                        cpf.isBlank()
+        ) {
+            return false;
+        }
+
+        return clienteRepository
+                .existsByCpf(
+                        normalizarCpf(cpf)
+                );
+    }
+
+
+    private String normalizarCpf(
+            String cpf
+    ) {
+
+        if (cpf == null) {
+            return null;
+        }
+
+        return cpf.replaceAll(
+                "\\D",
+                ""
+        );
+    }
+
 
     private ClienteResponseDTO toResponse(
             Cliente cliente
@@ -163,7 +308,8 @@ public class ClienteService {
                 cliente.getCidade(),
                 cliente.getEstado(),
                 cliente.getCep(),
-                cliente.getDataNascimento()
+                cliente.getDataNascimento(),
+                cliente.getAtivo()
         );
     }
 }

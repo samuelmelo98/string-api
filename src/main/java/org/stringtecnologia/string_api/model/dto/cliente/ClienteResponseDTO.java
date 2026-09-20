@@ -22,7 +22,8 @@ public record ClienteResponseDTO(
 
         String cep,
 
-        LocalDate dataNascimento
+        LocalDate dataNascimento,
+        Boolean ativo
 
 ) {
 }

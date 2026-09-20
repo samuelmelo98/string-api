@@ -44,4 +44,7 @@ public class Cliente implements Serializable {
     private String estado;
     private String cep;
 
+    @Column(nullable = false)
+    private Boolean ativo = true;
+
 }

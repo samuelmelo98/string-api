@@ -40,4 +40,9 @@ public interface OrdemServicoRepository
             nativeQuery = true
     )
     Long proximoNumero();
+
+    Optional<OrdemServico>
+    findFirstByAparelhoAparelhoIdOrderByDataAberturaDesc(
+            Long aparelhoId
+    );
 }

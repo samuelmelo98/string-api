@@ -1,16 +1,22 @@
 package org.stringtecnologia.string_api.util;
 
-public enum StatusAparelho implements DominioEnum{
+public enum StatusAparelho implements DominioEnum {
+
+    PARA_ORCAMENTO,
+
+    AUTORIZADO,
+
+    EM_MANUTENCAO,
+
+    AGUARDANDO_PECA,
+
     PRONTO,
+
     NAO_AUTORIZADO,
 
     DEVOLVIDO,
 
-    AUTORIZADO,
-
-    PARA_ORCAMENTO
-    ;
-
+    ENTREGUE;
 
     @Override
     public CategoriaDominio getCategoria() {
