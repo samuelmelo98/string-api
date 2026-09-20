@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.stringtecnologia.string_api.model.enums.Marca;
-import org.stringtecnologia.string_api.model.enums.TipoAparalho;
-import org.stringtecnologia.string_api.util.CategoriaDominio;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -36,16 +32,21 @@ public class Aparelho implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MARCA", nullable = false)
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "marca_id", nullable = false)
     private Marca marca;
+
     private String modelo;
     private String modeloComercial;
     private String numeroSerie;
     private String descricao;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "TIPO", nullable = false)
-    private TipoAparalho tipo;
+
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "tipo_aparelho_id", nullable = false)
+    private TipoAparelho tipo;
+
     private String defeito;
     private String observacao;
     @CreationTimestamp
