@@ -88,8 +88,8 @@ app:
 string:
   empresa:
     nome: String Tecnologia
-    cnpj: ${EMPRESA_CNPJ:00.000.000/0001-00}
-    telefone: ${EMPRESA_TELEFONE:(61) 99999-9999}
-    whatsapp: ${EMPRESA_WHATSAPP:5561999999999}
+    cnpj: ${EMPRESA_CNPJ:48.851.932/0001-74}
+    telefone: ${EMPRESA_TELEFONE:55 (61) 3302-3957}
+    whatsapp: ${EMPRESA_WHATSAPP:55 (61) 99609-9684}
   ordem-servico:
     consulta-base-url: ${OS_CONSULTA_BASE_URL:https://site-html.cluster.stringtecnologiadf.org/consulta/os}
