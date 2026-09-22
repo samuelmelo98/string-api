@@ -26,4 +26,8 @@ logging:
     org.springframework.security: TRACE
     org.springframework.web: DEBUG
 
+string:
+  ordem-servico:
+    consulta-base-url: "${ORDEM_SERVICO_CONSULTA_BASE_URL:https://stringtecnologiadf.org:4200/consulta/os}"
+
 

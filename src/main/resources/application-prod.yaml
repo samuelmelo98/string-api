@@ -23,3 +23,8 @@ app:
 logging:
   level:
     org.springframework.security: INFO
+
+
+string:
+  ordem-servico:
+    consulta-base-url: "${ORDEM_SERVICO_CONSULTA_BASE_URL:https://site-html.cluster.stringtecnologiadf.org/consulta/os}"

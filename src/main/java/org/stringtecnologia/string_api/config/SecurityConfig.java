@@ -37,6 +37,7 @@ public class SecurityConfig {
             .requestMatchers("/api/validacao/**").permitAll()
             .requestMatchers("/api/v1/documents/**").permitAll()
             .requestMatchers("/api/v1/cpf/**").permitAll()
+                                .requestMatchers("/api/public/ordens-servico/**").permitAll()
                                 .requestMatchers("/graphql/**").permitAll()
                                 .requestMatchers("/documentos/v1/**").permitAll()
 //                                .requestMatchers("/api/usuarios/**").permitAll()

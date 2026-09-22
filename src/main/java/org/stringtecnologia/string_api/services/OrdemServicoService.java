@@ -15,7 +15,7 @@ import org.stringtecnologia.string_api.repository.OrdemServicoRepository;
 import org.stringtecnologia.string_api.repository.UserRepository;
 import org.stringtecnologia.string_api.util.CategoriaDominio;
 import org.stringtecnologia.string_api.util.StatusAparelho;
-
+import java.util.UUID;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Optional;
@@ -90,6 +90,17 @@ public class OrdemServicoService {
                 gerarNumero(
                         sequencial
                 )
+        );
+
+        /*
+         * Token público e imprevisível utilizado na consulta
+         * externa da ordem de serviço via QR Code.
+         *
+         * O cliente ainda será validado pelos 2 últimos
+         * dígitos do CPF antes de visualizar a OS.
+         */
+        ordemServico.setConsultaToken(
+                UUID.randomUUID().toString()
         );
 
         ordemServico.setCliente(
