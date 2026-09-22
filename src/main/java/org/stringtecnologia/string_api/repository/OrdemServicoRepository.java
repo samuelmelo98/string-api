@@ -112,4 +112,9 @@ public interface OrdemServicoRepository
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim
     );
+
+    Optional<OrdemServico> findByNumeroAndConsultaToken(
+            String numero,
+            String consultaToken
+    );
 }

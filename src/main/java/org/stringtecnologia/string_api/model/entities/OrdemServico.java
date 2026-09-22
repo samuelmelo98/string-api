@@ -155,5 +155,14 @@ public class OrdemServico implements Serializable {
     @Column(name = "data_entrega")
     private LocalDateTime dataEntrega;
 
+    @Column(
+            name = "consulta_token",
+            nullable = false,
+            unique = true,
+            updatable = false,
+            length = 36
+    )
+    private String consultaToken;
+
 
 }

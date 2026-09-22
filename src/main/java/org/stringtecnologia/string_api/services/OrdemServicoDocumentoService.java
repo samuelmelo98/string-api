@@ -349,9 +349,9 @@ public class OrdemServicoDocumentoService {
         );
 
         String urlConsulta =
-                consultaBaseUrl
-                        + "/"
-                        + ordem.getNumero();
+                montarUrlConsulta(
+                        ordem
+                );
 
         Map<String, Object> empresa =
                 new HashMap<>();
@@ -395,6 +395,26 @@ public class OrdemServicoDocumentoService {
 
         return root;
     }
+
+    private String montarUrlConsulta(
+            OrdemServico ordem
+    ) {
+
+        if (ordem.getConsultaToken() == null
+                || ordem.getConsultaToken().isBlank()) {
+
+            throw new IllegalStateException(
+                    "A ordem de serviço não possui token de consulta."
+            );
+        }
+
+        return consultaBaseUrl
+                + "/"
+                + ordem.getNumero()
+                + "?t="
+                + ordem.getConsultaToken();
+    }
+
 
     private String valor(String valor) {
         return valor == null
