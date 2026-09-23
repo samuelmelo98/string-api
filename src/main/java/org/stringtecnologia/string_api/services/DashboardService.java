@@ -28,22 +28,13 @@ public class DashboardService {
 
         LocalDate hoje = LocalDate.now(ZONE_ID);
 
-        MetricaOrdemServicoDTO semana =
-                buscarUltimaSemana(hoje);
-
-        MetricaOrdemServicoDTO trintaDias =
-                buscarUltimos30Dias(hoje);
-
-        MetricaOrdemServicoDTO ano =
-                buscarUltimos365Dias(hoje);
-
         return new DashboardOrdemServicoDTO(
-                semana,
-                trintaDias,
-                ano
+                buscarUltimaSemana(hoje),
+                buscarEntreguesUltimos6Dias(hoje),
+                buscarUltimos30Dias(hoje),
+                buscarUltimos365Dias(hoje)
         );
     }
-
     /*
      * Última semana FECHADA:
      *
@@ -181,5 +172,38 @@ public class DashboardService {
         return valor != null
                 ? valor
                 : 0L;
+    }
+
+    private MetricaOrdemServicoDTO buscarEntreguesUltimos6Dias(
+            LocalDate hoje
+    ) {
+        LocalDate inicio = hoje.minusDays(5);
+
+        LocalDateTime inicioDataHora = inicio
+                .atStartOfDay(ZONE_ID)
+                .withZoneSameInstant(DATABASE_ZONE)
+                .toLocalDateTime();
+
+        LocalDateTime fimExclusivo = hoje
+                .plusDays(1)
+                .atStartOfDay(ZONE_ID)
+                .withZoneSameInstant(DATABASE_ZONE)
+                .toLocalDateTime();
+
+        long entregues = ordemServicoRepository.contarEntreguesNoPeriodo(
+                inicioDataHora,
+                fimExclusivo
+        );
+
+        return new MetricaOrdemServicoDTO(
+                inicio,
+                hoje,
+                entregues, // total do card: somente entregues
+                0L,        // abertas
+                0L,        // autorizadas
+                entregues,
+                0L,        // não autorizadas
+                0L         // outros
+        );
     }
 }

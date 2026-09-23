@@ -112,4 +112,16 @@ public interface OrdemServicoRepository
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim
     );
+
+    @Query("""
+    SELECT COUNT(os)
+    FROM OrdemServico os
+    WHERE os.status.codigo = 'ENTREGUE'
+      AND os.dataEntrega >= :inicio
+      AND os.dataEntrega < :fim
+    """)
+    long contarEntreguesNoPeriodo(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
+    );
 }
