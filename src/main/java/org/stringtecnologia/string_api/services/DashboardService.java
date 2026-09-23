@@ -4,12 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.stringtecnologia.string_api.model.dto.dashboard.DashboardOrdemServicoDTO;
+import org.stringtecnologia.string_api.model.dto.dashboard.MetricaEntregasTecnicoDTO;
 import org.stringtecnologia.string_api.model.dto.dashboard.MetricaOrdemServicoDTO;
+import org.stringtecnologia.string_api.model.enums.StatusOrcamento;
 import org.stringtecnologia.string_api.repository.OrdemServicoRepository;
 import org.stringtecnologia.string_api.repository.projection.MetricaOrdemServicoProjection;
 
+import java.math.BigDecimal;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +38,8 @@ public class DashboardService {
                 buscarUltimaSemana(hoje),
                 buscarEntreguesUltimos6Dias(hoje),
                 buscarUltimos30Dias(hoje),
-                buscarUltimos365Dias(hoje)
+                buscarUltimos365Dias(hoje),
+                buscarEntreguesPorTecnico(hoje)
         );
     }
     /*
@@ -205,5 +212,64 @@ public class DashboardService {
                 0L,        // não autorizadas
                 0L         // outros
         );
+    }
+
+    private List<MetricaEntregasTecnicoDTO> buscarEntreguesPorTecnico(
+            LocalDate hoje
+    ) {
+        LocalDateTime inicio = hoje
+                .minusDays(5)
+                .atStartOfDay(ZONE_ID)
+                .withZoneSameInstant(DATABASE_ZONE)
+                .toLocalDateTime();
+
+        LocalDateTime fimExclusivo = hoje
+                .plusDays(1)
+                .atStartOfDay(ZONE_ID)
+                .withZoneSameInstant(DATABASE_ZONE)
+                .toLocalDateTime();
+
+        Map<Long, BigDecimal> materialPorTecnico = new HashMap<>();
+
+        ordemServicoRepository.buscarMaterialPorTecnico(
+                inicio,
+                fimExclusivo,
+                StatusOrcamento.APROVADO
+        ).forEach(item -> materialPorTecnico.put(
+                item.getTecnicoId(),
+                moedaOuZero(item.getValorMaterial())
+        ));
+
+        return ordemServicoRepository.buscarEntregasPorTecnico(
+                        inicio,
+                        fimExclusivo
+                )
+                .stream()
+                .map(item -> {
+                    Long tecnicoId = item.getTecnicoId();
+                    String tecnicoNome = item.getTecnicoNome();
+
+                    if (tecnicoId == null) {
+                        tecnicoNome = "Sem técnico responsável";
+                    } else if (tecnicoNome == null || tecnicoNome.isBlank()) {
+                        tecnicoNome = "Técnico #" + tecnicoId;
+                    }
+
+                    return new MetricaEntregasTecnicoDTO(
+                            tecnicoId,
+                            tecnicoNome,
+                            valor(item.getQuantidadeEntregues()),
+                            moedaOuZero(item.getValorTotal()),
+                            materialPorTecnico.getOrDefault(
+                                    tecnicoId,
+                                    BigDecimal.ZERO
+                            )
+                    );
+                })
+                .toList();
+    }
+
+    private BigDecimal moedaOuZero(BigDecimal valor) {
+        return valor != null ? valor : BigDecimal.ZERO;
     }
 }
