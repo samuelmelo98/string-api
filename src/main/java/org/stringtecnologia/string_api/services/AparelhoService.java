@@ -16,6 +16,7 @@ import org.stringtecnologia.string_api.repository.AparelhoRepository;
 import org.stringtecnologia.string_api.repository.ClienteRepository;
 import org.stringtecnologia.string_api.util.StatusAparelho;
 import java.util.List;
+import org.stringtecnologia.string_api.model.dto.aparelho.AparelhoUpdateDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -82,13 +83,84 @@ public class AparelhoService implements AparelhoServiceI {
     }
 
     @Override
-    public AparelhoResponseDTO buscarPorId(Long id) {
-        return null;
+    @Transactional(readOnly = true)
+    public AparelhoResponseDTO buscarPorId(
+            Long id
+    ) {
+
+        Aparelho aparelho =
+                aparelhoRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Aparelho não encontrado."
+                                        )
+                        );
+
+        return toResponse(aparelho);
     }
 
     @Override
-    public AparelhoResponseDTO atualizar(Long id, AparelhoRequestDTO request) {
-        return null;
+    @Transactional
+    public AparelhoResponseDTO atualizar(
+            Long id,
+            AparelhoUpdateDTO request
+    ) {
+
+        Aparelho aparelho =
+                aparelhoRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Aparelho não encontrado."
+                                        )
+                        );
+
+
+        Marca marca =
+                marcaService.buscarAtiva(
+                        request.marcaId()
+                );
+
+
+        TipoAparelho tipo =
+                tipoAparelhoService.buscarAtivo(
+                        request.tipoAparelhoId()
+                );
+
+
+        aparelho.setMarca(
+                marca
+        );
+
+        aparelho.setTipo(
+                tipo
+        );
+
+        aparelho.setModelo(
+                request.modelo().trim()
+        );
+
+        aparelho.setModeloComercial(
+                normalizarTextoOpcional(
+                        request.modeloComercial()
+                )
+        );
+
+        aparelho.setNumeroSerie(
+                request.numeroSerie().trim()
+        );
+
+
+        return toResponse(
+                aparelhoRepository.save(
+                        aparelho
+                )
+        );
     }
 
     @Override
@@ -101,23 +173,50 @@ public class AparelhoService implements AparelhoServiceI {
 
     }
 
-    public AparelhoResponseDTO toResponse(Aparelho aparelho) {
+    public AparelhoResponseDTO toResponse(
+            Aparelho aparelho
+    ) {
 
         return new AparelhoResponseDTO(
+
                 aparelho.getAparelhoId(),
+
+                aparelho.getMarca() != null
+                        ? aparelho.getMarca().getMarcaId()
+                        : null,
+
                 aparelho.getMarca() != null
                         ? aparelho.getMarca().getNome()
                         : null,
+
+                aparelho.getTipo() != null
+                        ? aparelho.getTipo().getTipoAparelhoId()
+                        : null,
+
+                aparelho.getTipo() != null
+                        ? aparelho.getTipo().getNome()
+                        : null,
+
                 aparelho.getModelo(),
+
                 aparelho.getModeloComercial(),
+
                 aparelho.getNumeroSerie(),
+
                 aparelho.getStatusAparelho() != null
-                        ? aparelho.getStatusAparelho().getDominioSistemaId()
+                        ? aparelho
+                        .getStatusAparelho()
+                        .getDominioSistemaId()
                         : null,
+
                 aparelho.getStatusAparelho() != null
-                        ? aparelho.getStatusAparelho().getDescricao()
+                        ? aparelho
+                        .getStatusAparelho()
+                        .getDescricao()
                         : null,
+
                 aparelho.getDataCadastro(),
+
                 aparelho.getObservacao()
         );
     }
@@ -135,6 +234,20 @@ public class AparelhoService implements AparelhoServiceI {
                 )
                 .map(this::toResponse);
     }
+    private String normalizarTextoOpcional(
+            String valor
+    ) {
+
+        if (
+                valor == null ||
+                        valor.isBlank()
+        ) {
+            return null;
+        }
+
+        return valor.trim();
+    }
+
 
 
 }
