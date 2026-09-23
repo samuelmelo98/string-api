@@ -145,4 +145,48 @@ public class ApiExceptionHandler {
                 .badRequest()
                 .body(problem);
     }
+
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<ProblemDetail> handleConflito(
+            ConflitoException ex,
+            HttpServletRequest request
+    ) {
+
+        ProblemDetail problem =
+                ProblemDetail.forStatus(
+                        HttpStatus.CONFLICT
+                );
+
+        problem.setTitle(
+                "Conflito"
+        );
+
+        problem.setDetail(
+                ex.getMessage()
+        );
+
+        problem.setInstance(
+                URI.create(
+                        request.getRequestURI()
+                )
+        );
+
+        problem.setProperty(
+                "path",
+                request.getRequestURI()
+        );
+
+        problem.setProperty(
+                "timestamp",
+                Instant.now()
+        );
+
+        return ResponseEntity
+                .status(
+                        HttpStatus.CONFLICT
+                )
+                .body(
+                        problem
+                );
+    }
 }

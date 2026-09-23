@@ -15,6 +15,7 @@ import org.stringtecnologia.string_api.model.dto.cliente.ClienteUpdateDTO;
 import org.stringtecnologia.string_api.model.entities.Cliente;
 
 import org.stringtecnologia.string_api.repository.ClienteRepository;
+import org.stringtecnologia.string_api.util.exceptions.ConflitoException;
 
 @Service
 @RequiredArgsConstructor
@@ -154,18 +155,57 @@ public class ClienteService {
                                         )
                         );
 
-        cliente.setNome(dto.nome());
+        String cpfNormalizado =
+                normalizarCpf(
+                        dto.cpf()
+                );
 
-        cliente.setCpf(
-                normalizarCpf(dto.cpf())
+        boolean cpfJaExiste =
+                clienteRepository
+                        .existsByCpfAndClienteIdNot(
+                                cpfNormalizado,
+                                clienteId
+                        );
+
+        if (cpfJaExiste) {
+
+            throw new ConflitoException(
+                    "Já existe outro cliente cadastrado com este CPF."
+            );
+
+        }
+
+        cliente.setNome(
+                dto.nome()
         );
 
-        cliente.setEmail(dto.email());
-        cliente.setTelefone(dto.telefone());
-        cliente.setEndereco(dto.endereco());
-        cliente.setCidade(dto.cidade());
-        cliente.setEstado(dto.estado());
-        cliente.setCep(dto.cep());
+        cliente.setCpf(
+                cpfNormalizado
+        );
+
+        cliente.setEmail(
+                dto.email()
+        );
+
+        cliente.setTelefone(
+                dto.telefone()
+        );
+
+        cliente.setEndereco(
+                dto.endereco()
+        );
+
+        cliente.setCidade(
+                dto.cidade()
+        );
+
+        cliente.setEstado(
+                dto.estado()
+        );
+
+        cliente.setCep(
+                dto.cep()
+        );
 
         return toResponse(
                 clienteRepository.save(

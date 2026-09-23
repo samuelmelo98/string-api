@@ -33,4 +33,10 @@ public interface ClienteRepository
             @Param("ativo") Boolean ativo,
             Pageable pageable
     );
+
+
+    boolean existsByCpfAndClienteIdNot(
+            String cpf,
+            Long clienteId
+    );
 }
