@@ -4,12 +4,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -103,5 +107,42 @@ public class ApiExceptionHandler {
         problem.setDetail("Ocorreu um erro interno. Entre em contato com o suporte.");
         problem.setProperty("timestamp", Instant.now());
         return problem;
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ProblemDetail> handleValidationException(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request
+    ) {
+
+        String mensagem =
+                ex.getBindingResult()
+                        .getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse("Dados inválidos.");
+
+
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.BAD_REQUEST,
+                        mensagem
+                );
+
+        problem.setTitle(
+                "Dados inválidos"
+        );
+
+        problem.setProperty(
+                "path",
+                request.getRequestURI()
+        );
+
+
+        return ResponseEntity
+                .badRequest()
+                .body(problem);
     }
 }
