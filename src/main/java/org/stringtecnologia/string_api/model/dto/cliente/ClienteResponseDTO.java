@@ -1,6 +1,7 @@
 package org.stringtecnologia.string_api.model.dto.cliente;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ClienteResponseDTO(
 
@@ -23,7 +24,10 @@ public record ClienteResponseDTO(
         String cep,
 
         LocalDate dataNascimento,
-        Boolean ativo
+
+        Boolean ativo,
+
+        LocalDateTime dataCadastro
 
 ) {
 }

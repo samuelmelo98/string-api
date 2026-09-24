@@ -349,7 +349,8 @@ public class ClienteService {
                 cliente.getEstado(),
                 cliente.getCep(),
                 cliente.getDataNascimento(),
-                cliente.getAtivo()
+                cliente.getAtivo(),
+                cliente.getDataCadastro()
         );
     }
 }

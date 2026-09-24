@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,5 +47,19 @@ public class Cliente implements Serializable {
 
     @Column(nullable = false)
     private Boolean ativo = true;
+
+    @Column(
+            name = "data_cadastro",
+            nullable = false,
+            updatable = false
+    )
+    private LocalDateTime dataCadastro;
+
+    @PrePersist
+    public void prePersist() {
+        if (dataCadastro == null) {
+            dataCadastro = LocalDateTime.now();
+        }
+    }
 
 }
