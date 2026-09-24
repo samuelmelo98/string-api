@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.stringtecnologia.string_api.model.entities.OrdemServico;
+import org.stringtecnologia.string_api.model.enums.StatusOrcamento;
+import org.stringtecnologia.string_api.repository.projection.EntregaTecnicoProjection;
+import org.stringtecnologia.string_api.repository.projection.MaterialTecnicoProjection;
 import org.stringtecnologia.string_api.repository.projection.MetricaOrdemServicoProjection;
 
 import java.time.LocalDateTime;
@@ -111,6 +114,62 @@ public interface OrdemServicoRepository
     MetricaOrdemServicoProjection buscarMetricas(
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim
+    );
+
+    @Query("""
+    SELECT COUNT(os)
+    FROM OrdemServico os
+    WHERE os.status.codigo = 'ENTREGUE'
+      AND os.dataEntrega >= :inicio
+      AND os.dataEntrega < :fim
+    """)
+    long contarEntreguesNoPeriodo(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
+    );
+
+    @Query("""
+    SELECT
+        tecnico.id AS tecnicoId,
+        tecnico.nome AS tecnicoNome,
+        COUNT(os) AS quantidadeEntregues,
+        SUM(COALESCE(os.valorFinal, 0)) AS valorTotal
+    FROM OrdemServico os
+    LEFT JOIN os.tecnicoResponsavel tecnico
+    WHERE os.status.codigo = 'ENTREGUE'
+      AND os.dataEntrega >= :inicio
+      AND os.dataEntrega < :fim
+    GROUP BY tecnico.id, tecnico.nome
+    ORDER BY tecnico.nome, tecnico.id
+    """)
+    List<EntregaTecnicoProjection> buscarEntregasPorTecnico(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
+    );
+
+    @Query("""
+    SELECT
+        tecnico.id AS tecnicoId,
+        SUM(COALESCE(orcamento.valorPecas, 0)) AS valorMaterial
+    FROM OrdemServicoOrcamento orcamento
+    JOIN orcamento.ordemServico os
+    LEFT JOIN os.tecnicoResponsavel tecnico
+    WHERE os.status.codigo = 'ENTREGUE'
+      AND os.dataEntrega >= :inicio
+      AND os.dataEntrega < :fim
+      AND orcamento.status = :status
+      AND orcamento.versao = (
+          SELECT MAX(outro.versao)
+          FROM OrdemServicoOrcamento outro
+          WHERE outro.ordemServico = os
+            AND outro.status = :status
+      )
+    GROUP BY tecnico.id
+    """)
+    List<MaterialTecnicoProjection> buscarMaterialPorTecnico(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim,
+            @Param("status") StatusOrcamento status
     );
 
     Optional<OrdemServico> findByNumeroAndConsultaToken(
