@@ -1,8 +1,10 @@
 package org.stringtecnologia.string_api.repository;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.stringtecnologia.string_api.model.entities.OrdemServico;
@@ -10,6 +12,7 @@ import org.stringtecnologia.string_api.model.enums.StatusOrcamento;
 import org.stringtecnologia.string_api.repository.projection.EntregaTecnicoProjection;
 import org.stringtecnologia.string_api.repository.projection.MaterialTecnicoProjection;
 import org.stringtecnologia.string_api.repository.projection.MetricaOrdemServicoProjection;
+import org.stringtecnologia.string_api.repository.projection.RelatorioSemanalTecnicoOrdemProjection;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -175,5 +178,105 @@ public interface OrdemServicoRepository
     Optional<OrdemServico> findByNumeroAndConsultaToken(
             String numero,
             String consultaToken
+    );
+
+    @Query("""
+    SELECT
+        os.ordemServicoId AS ordemServicoId,
+        os.numero AS numeroOrdemServico,
+
+        tecnico.id AS tecnicoId,
+        tecnico.nome AS tecnicoNome,
+        tecnico.email AS tecnicoEmail,
+
+        cliente.clienteId AS clienteId,
+        cliente.nome AS clienteNome,
+
+        aparelho.aparelhoId AS aparelhoId,
+        aparelho.modelo AS modelo,
+        aparelho.modeloComercial AS modeloComercial,
+        aparelho.numeroSerie AS numeroSerie,
+
+        os.valorFinal AS valorFinal,
+        os.valorOrcamento AS valorOrcamento,
+
+        os.dataEntrega AS dataEntrega
+
+    FROM OrdemServico os
+
+    JOIN os.tecnicoResponsavel tecnico
+    JOIN os.cliente cliente
+    JOIN os.aparelho aparelho
+
+    WHERE os.dataEntrega >= :inicio
+      AND os.dataEntrega < :fimExclusivo
+      AND os.tecnicoResponsavel IS NOT NULL
+
+    ORDER BY
+        tecnico.nome,
+        os.dataEntrega,
+        os.numero
+    """)
+    List<RelatorioSemanalTecnicoOrdemProjection>
+    buscarOrdensEntreguesPorPeriodo(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fimExclusivo") LocalDateTime fimExclusivo
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT os
+    FROM OrdemServico os
+    WHERE os.ordemServicoId = :ordemServicoId
+    """)
+    Optional<OrdemServico> buscarPorIdParaAtualizacao(
+            @Param("ordemServicoId") Long ordemServicoId
+    );
+
+    @Query("""
+    SELECT
+        os.ordemServicoId AS ordemServicoId,
+        os.numero AS numeroOrdemServico,
+
+        tecnico.id AS tecnicoId,
+        tecnico.nome AS tecnicoNome,
+        tecnico.email AS tecnicoEmail,
+
+        cliente.clienteId AS clienteId,
+        cliente.nome AS clienteNome,
+
+        aparelho.aparelhoId AS aparelhoId,
+        aparelho.modelo AS modelo,
+        aparelho.modeloComercial AS modeloComercial,
+        aparelho.numeroSerie AS numeroSerie,
+
+        os.valorFinal AS valorFinal,
+        os.valorOrcamento AS valorOrcamento,
+
+        os.dataEntrega AS dataEntrega
+
+    FROM OrdemServico os
+
+    JOIN os.tecnicoResponsavel tecnico
+    JOIN os.cliente cliente
+    JOIN os.aparelho aparelho
+
+    WHERE os.dataEntrega >= :inicio
+      AND os.dataEntrega < :fimExclusivo
+      AND (
+            :tecnicoId IS NULL
+            OR tecnico.id = :tecnicoId
+          )
+
+    ORDER BY
+        tecnico.nome,
+        os.dataEntrega,
+        os.numero
+    """)
+    List<RelatorioSemanalTecnicoOrdemProjection>
+    buscarOrdensEntreguesPorPeriodo(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fimExclusivo") LocalDateTime fimExclusivo,
+            @Param("tecnicoId") Long tecnicoId
     );
 }
