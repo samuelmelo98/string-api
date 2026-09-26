@@ -19,6 +19,8 @@ public record AparelhoResponseDTO(
         Long statusAparelhoId,
         String statusAparelho,
 
+        String numeroOrdemServico,
+
         LocalDateTime dataEntradaAparelho,
 
         String observacao
