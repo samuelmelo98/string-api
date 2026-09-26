@@ -9,6 +9,11 @@ import java.math.BigDecimal;
 public record OrdemServicoOrcamentoRequestDTO(
 
         @NotBlank(
+                message = "O diagnóstico é obrigatório."
+        )
+        String diagnostico,
+
+        @NotBlank(
                 message = "O serviço proposto é obrigatório."
         )
         String servicoProposto,
