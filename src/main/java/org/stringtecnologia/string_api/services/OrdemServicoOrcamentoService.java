@@ -48,7 +48,21 @@ public class OrdemServicoOrcamentoService {
                                 )
                         );
 
-        validarOrdemEmAnalise(ordem);
+        validarOrdemEmAnalise(
+                ordem
+        );
+
+        /*
+         * O diagnóstico pertence à OS.
+         *
+         * Ele é informado durante a elaboração
+         * do orçamento, mas permanece armazenado
+         * em TB_ORDEM_SERVICO.
+         */
+        ordem.setDiagnostico(
+                request.diagnostico()
+                        .trim()
+        );
 
         BigDecimal valorMaoObra =
                 valorOuZero(
@@ -118,6 +132,7 @@ public class OrdemServicoOrcamentoService {
 
         orcamento.setServicoProposto(
                 request.servicoProposto()
+                        .trim()
         );
 
         orcamento.setValorMaoObra(
@@ -137,7 +152,10 @@ public class OrdemServicoOrcamentoService {
         );
 
         orcamento.setObservacao(
-                request.observacao()
+                request.observacao() != null
+                        && !request.observacao().isBlank()
+                        ? request.observacao().trim()
+                        : null
         );
 
 
@@ -331,10 +349,35 @@ public class OrdemServicoOrcamentoService {
             );
         }
 
+        if (orcamento.getStatus()
+                != StatusOrcamento.RASCUNHO) {
+
+            throw new IllegalStateException(
+                    "Somente um orçamento em rascunho pode ser enviado para aprovação."
+            );
+        }
+
+        if (orcamento.getValorTotal() == null
+                || orcamento.getValorTotal().signum() < 0) {
+
+            throw new IllegalStateException(
+                    "O orçamento possui valor total inválido."
+            );
+        }
+
+        if (
+                ordem.getDiagnostico() == null ||
+                        ordem.getDiagnostico().isBlank()
+        ) {
+
+            throw new IllegalStateException(
+                    "Informe o diagnóstico antes de enviar o orçamento para aprovação."
+            );
+        }
+
         orcamento.setStatus(
                 StatusOrcamento.AGUARDANDO_APROVACAO
         );
-
         orcamento.setDataEnvio(
                 LocalDateTime.now()
         );
