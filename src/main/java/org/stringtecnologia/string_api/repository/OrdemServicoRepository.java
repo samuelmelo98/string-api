@@ -9,10 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.stringtecnologia.string_api.model.entities.OrdemServico;
 import org.stringtecnologia.string_api.model.enums.StatusOrcamento;
-import org.stringtecnologia.string_api.repository.projection.EntregaTecnicoProjection;
-import org.stringtecnologia.string_api.repository.projection.MaterialTecnicoProjection;
-import org.stringtecnologia.string_api.repository.projection.MetricaOrdemServicoProjection;
-import org.stringtecnologia.string_api.repository.projection.RelatorioSemanalTecnicoOrdemProjection;
+import org.stringtecnologia.string_api.repository.projection.*;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -278,5 +275,65 @@ public interface OrdemServicoRepository
             @Param("inicio") LocalDateTime inicio,
             @Param("fimExclusivo") LocalDateTime fimExclusivo,
             @Param("tecnicoId") Long tecnicoId
+    );
+
+    @Query(
+            value = """
+        SELECT
+            os.ordemServicoId AS ordemServicoId,
+            os.numero AS numero,
+
+            status.codigo AS statusCodigo,
+            status.descricao AS statusDescricao,
+
+            os.dataAbertura AS dataAbertura,
+
+            cliente.clienteId AS clienteId,
+            cliente.nome AS clienteNome,
+            cliente.cpf AS clienteCpf,
+            cliente.telefone AS clienteTelefone,
+
+            aparelho.aparelhoId AS aparelhoId,
+            marca.nome AS marca,
+            aparelho.modelo AS modelo,
+            aparelho.modeloComercial AS modeloComercial,
+            aparelho.numeroSerie AS numeroSerie
+
+        FROM OrdemServico os
+
+        JOIN os.status status
+        JOIN os.cliente cliente
+        JOIN os.aparelho aparelho
+        LEFT JOIN aparelho.marca marca
+
+        WHERE status.codigo IN (
+            'ABERTA',
+            'EM_ANALISE',
+            'AGUARDANDO_APROVACAO',
+            'APROVADA',
+            'EM_EXECUCAO',
+            'CONCLUIDA'
+        )
+        """,
+
+            countQuery = """
+        SELECT COUNT(os)
+
+        FROM OrdemServico os
+
+        JOIN os.status status
+
+        WHERE status.codigo IN (
+            'ABERTA',
+            'EM_ANALISE',
+            'AGUARDANDO_APROVACAO',
+            'APROVADA',
+            'EM_EXECUCAO',
+            'CONCLUIDA'
+        )
+        """
+    )
+    Page<OrdemServicoAbertaProjection> buscarOrdensAbertas(
+            Pageable pageable
     );
 }

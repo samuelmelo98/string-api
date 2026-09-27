@@ -1,9 +1,12 @@
 package org.stringtecnologia.string_api.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.stringtecnologia.string_api.model.dto.ordemServico.ConcluirOrdemServicoRequestDTO;
+import org.stringtecnologia.string_api.model.dto.ordemServico.OrdemServicoAbertaDTO;
 import org.stringtecnologia.string_api.model.dto.ordemServico.OrdemServicoResponseDTO;
 import org.stringtecnologia.string_api.model.entities.Aparelho;
 import org.stringtecnologia.string_api.model.entities.DominioSistema;
@@ -722,6 +725,52 @@ public class OrdemServicoService {
                         aparelhoId
                 )
                 .map(this::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrdemServicoAbertaDTO> listarAbertas(
+            Pageable pageable
+    ) {
+
+        return ordemServicoRepository
+                .buscarOrdensAbertas(
+                        pageable
+                )
+                .map(projection ->
+                        new OrdemServicoAbertaDTO(
+
+                                projection.getOrdemServicoId(),
+
+                                projection.getNumero(),
+
+                                projection.getStatusCodigo(),
+
+                                projection.getStatusDescricao(),
+
+                                projection.getDataAbertura(),
+
+
+                                projection.getClienteId(),
+
+                                projection.getClienteNome(),
+
+                                projection.getClienteCpf(),
+
+                                projection.getClienteTelefone(),
+
+
+                                projection.getAparelhoId(),
+
+                                projection.getMarca(),
+
+                                projection.getModelo(),
+
+                                projection.getModeloComercial(),
+
+                                projection.getNumeroSerie()
+
+                        )
+                );
     }
 
 
