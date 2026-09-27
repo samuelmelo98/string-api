@@ -2,13 +2,14 @@ package org.stringtecnologia.string_api.resources;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.stringtecnologia.string_api.model.dto.ordemServico.AtribuirTecnicoRequestDTO;
-import org.stringtecnologia.string_api.model.dto.ordemServico.ConcluirOrdemServicoRequestDTO;
-import org.stringtecnologia.string_api.model.dto.ordemServico.OrdemServicoRequestDTO;
-import org.stringtecnologia.string_api.model.dto.ordemServico.OrdemServicoResponseDTO;
+import org.stringtecnologia.string_api.model.dto.ordemServico.*;
 import org.stringtecnologia.string_api.services.OrdemServicoDocumentoService;
 import org.stringtecnologia.string_api.services.OrdemServicoService;
 
@@ -138,5 +139,24 @@ public class OrdemServicoController {
                 .orElseGet(() ->
                         ResponseEntity.noContent().build()
                 );
+    }
+
+    @GetMapping("/abertas")
+    public ResponseEntity<Page<OrdemServicoAbertaDTO>> listarAbertas(
+
+            @PageableDefault(
+                    size = 10,
+                    sort = "ordemServicoId",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+
+    ) {
+
+        return ResponseEntity.ok(
+                ordemServicoService.listarAbertas(
+                        pageable
+                )
+        );
     }
 }
