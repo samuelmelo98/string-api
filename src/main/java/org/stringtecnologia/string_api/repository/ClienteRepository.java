@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import org.stringtecnologia.string_api.model.entities.Cliente;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ClienteRepository
@@ -38,5 +39,12 @@ public interface ClienteRepository
     boolean existsByCpfAndClienteIdNot(
             String cpf,
             Long clienteId
+    );
+
+    List<Cliente> findAllByOrderByNomeAsc();
+
+    Page<Cliente> findByNomeContainingIgnoreCase(
+            String nome,
+            Pageable pageable
     );
 }

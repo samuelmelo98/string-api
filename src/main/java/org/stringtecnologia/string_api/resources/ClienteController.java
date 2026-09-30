@@ -7,16 +7,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteCreateDTO;
+import org.stringtecnologia.string_api.model.dto.cliente.ClienteOpcaoDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteResponseDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteUpdateDTO;
 
 import org.stringtecnologia.string_api.services.ClienteService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -129,5 +133,29 @@ public class ClienteController {
         return ResponseEntity
                 .noContent()
                 .build();
+    }
+
+    @GetMapping("/opcoes")
+    public ResponseEntity<List<ClienteOpcaoDTO>>
+    listarOpcoes() {
+
+        return ResponseEntity.ok(
+                clienteService.listarOpcoes()
+        );
+    }
+
+    @GetMapping("/opcoes2")
+    public Page<ClienteOpcaoDTO> listarOpcoes2(
+            @RequestParam(defaultValue = "") String nome,
+            @PageableDefault(
+                    size = 20,
+                    sort = "nome"
+            ) Pageable pageable
+    ) {
+
+        return clienteService.listarOpcoes2(
+                nome,
+                pageable
+        );
     }
 }
