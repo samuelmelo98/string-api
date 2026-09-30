@@ -18,6 +18,7 @@ import org.stringtecnologia.string_api.model.entities.Cliente;
 
 import org.stringtecnologia.string_api.repository.ClienteRepository;
 import org.stringtecnologia.string_api.util.exceptions.ConflitoException;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -76,6 +77,9 @@ public class ClienteService {
         );
     }
 
+    @PreAuthorize(
+            "@authz.has(authentication, 'CLIENTE_VISUALIZAR')"
+    )
 
     public Page<ClienteResponseDTO> listar(
             Pageable pageable,
@@ -89,7 +93,9 @@ public class ClienteService {
         );
     }
 
-
+    @PreAuthorize(
+            "@authz.has(authentication, 'CLIENTE_VISUALIZAR')"
+    )
     public Page<ClienteResponseDTO> listar(
             Pageable pageable,
             String search,

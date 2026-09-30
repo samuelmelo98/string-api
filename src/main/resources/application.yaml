@@ -71,6 +71,11 @@ app:
     enabled: ${APP_EMAIL_TEST_ENABLED:false}
     to: ${APP_EMAIL_TEST_TO:}
 
+
+  security:
+    keycloak:
+      client-id: string-api
+
   storage:
     max-size: 10MB
 
