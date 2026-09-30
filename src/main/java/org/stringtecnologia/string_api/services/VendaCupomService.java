@@ -489,8 +489,7 @@ public class VendaCupomService {
                 escapar(EMPRESA_ENDERECO),
                 escapar(EMPRESA_TELEFONE),
                 escapar(venda.getNumero()),
-                venda.getDataVenda()
-                        .format(DATA_HORA),
+                venda.getDataVenda(),
                 escapar(clienteNome),
                 cpfHtml,
                 itensHtml,

@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.stringtecnologia.string_api.model.enums.StatusVenda;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,7 +21,7 @@ public class VendaResponseDTO {
 
     private String clienteNome;
 
-    private LocalDateTime dataVenda;
+    private Instant dataVenda;
 
     private StatusVenda status;
 

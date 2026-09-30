@@ -1,7 +1,7 @@
 package org.stringtecnologia.string_api.model.dto.cliente;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public record ClienteResponseDTO(
 
@@ -27,7 +27,7 @@ public record ClienteResponseDTO(
 
         Boolean ativo,
 
-        LocalDateTime dataCadastro
+        Instant dataCadastro
 
 ) {
 }

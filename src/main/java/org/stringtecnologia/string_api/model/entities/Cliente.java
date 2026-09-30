@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,12 +53,12 @@ public class Cliente implements Serializable {
             nullable = false,
             updatable = false
     )
-    private LocalDateTime dataCadastro;
+    private Instant dataCadastro;
 
     @PrePersist
     public void prePersist() {
         if (dataCadastro == null) {
-            dataCadastro = LocalDateTime.now();
+            dataCadastro = Instant.now();
         }
     }
 

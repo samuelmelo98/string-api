@@ -9,7 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.stringtecnologia.string_api.model.enums.StatusVenda;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class Venda {
             name = "data_venda",
             nullable = false
     )
-    private LocalDateTime dataVenda;
+    private Instant dataVenda;
 
     @Enumerated(EnumType.STRING)
     @Column(
@@ -132,11 +132,11 @@ public class Venda {
             nullable = false,
             updatable = false
     )
-    private LocalDateTime dataCriacao;
+    private Instant dataCriacao;
 
     @UpdateTimestamp
     @Column(name = "data_atualizacao")
-    private LocalDateTime dataAtualizacao;
+    private Instant dataAtualizacao;
 
     public void adicionarItem(VendaItem item) {
 

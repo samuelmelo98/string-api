@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.stringtecnologia.string_api.model.enums.StatusVenda;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class VendaDetalheDTO {
 
     private String clienteNome;
 
-    private LocalDateTime dataVenda;
+    private Instant dataVenda;
 
     private StatusVenda status;
 
@@ -36,9 +37,9 @@ public class VendaDetalheDTO {
 
     private String observacao;
 
-    private LocalDateTime dataCriacao;
+    private Instant dataCriacao;
 
-    private LocalDateTime dataAtualizacao;
+    private Instant dataAtualizacao;
 
     private List<VendaItemResponseDTO> itens =
             new ArrayList<>();
