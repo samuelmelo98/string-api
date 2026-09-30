@@ -18,6 +18,7 @@ import org.stringtecnologia.string_api.util.exceptions.venda.VendaNaoEncontradaE
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -47,9 +48,7 @@ public class VendaService {
                 gerarNumero()
         );
 
-        venda.setDataVenda(
-                LocalDateTime.now(ZONE_ID)
-        );
+        venda.setDataVenda(Instant.now());
 
         venda.setStatus(
                 StatusVenda.ABERTA
