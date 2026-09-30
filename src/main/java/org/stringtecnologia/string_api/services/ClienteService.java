@@ -6,9 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.stringtecnologia.string_api.integration.infosimples.dto.RestricaoSolicitacaoResponseDTO;
 
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteCreateDTO;
+import org.stringtecnologia.string_api.model.dto.cliente.ClienteOpcaoDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteResponseDTO;
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteUpdateDTO;
 
@@ -16,6 +18,8 @@ import org.stringtecnologia.string_api.model.entities.Cliente;
 
 import org.stringtecnologia.string_api.repository.ClienteRepository;
 import org.stringtecnologia.string_api.util.exceptions.ConflitoException;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -352,5 +356,48 @@ public class ClienteService {
                 cliente.getAtivo(),
                 cliente.getDataCadastro()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClienteOpcaoDTO> listarOpcoes() {
+
+        return clienteRepository
+                .findAllByOrderByNomeAsc()
+                .stream()
+                .map(cliente ->
+                        new ClienteOpcaoDTO(
+                                cliente.getClienteId(),
+                                cliente.getNome(),
+                                cliente.getCpf(),
+                                cliente.getTelefone()
+                        )
+                )
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClienteOpcaoDTO> listarOpcoes2(
+            String nome,
+            Pageable pageable
+    ) {
+
+        String termo =
+                nome == null
+                        ? ""
+                        : nome.trim();
+
+        return clienteRepository
+                .findByNomeContainingIgnoreCase(
+                        termo,
+                        pageable
+                )
+                .map(cliente ->
+                        new ClienteOpcaoDTO(
+                                cliente.getClienteId(),
+                                cliente.getNome(),
+                                cliente.getCpf(),
+                                cliente.getTelefone()
+                        )
+                );
     }
 }
