@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.stringtecnologia.string_api.model.dto.venda.VendaDetalheDTO;
 import org.stringtecnologia.string_api.model.dto.venda.VendaRequestDTO;
 import org.stringtecnologia.string_api.model.dto.venda.VendaResponseDTO;
 import org.stringtecnologia.string_api.services.VendaService;
+import org.stringtecnologia.string_api.services.VendaCupomService;
 
 @RestController
 @RequestMapping("/api/vendas")
@@ -19,6 +21,7 @@ import org.stringtecnologia.string_api.services.VendaService;
 public class VendaController {
 
     private final VendaService vendaService;
+    private final VendaCupomService vendaCupomService;
 
     @PostMapping
     public ResponseEntity<VendaDetalheDTO> criar(
@@ -108,6 +111,30 @@ public class VendaController {
                 )
         );
 
+    }
+
+    @GetMapping(
+            value = "/{vendaId}/cupom",
+            produces = MediaType.TEXT_HTML_VALUE
+    )
+    public ResponseEntity<String> emitirCupom(
+            @PathVariable Long vendaId
+    ) {
+
+        String html =
+                vendaCupomService
+                        .gerarCupom(
+                                vendaId
+                        );
+
+        return ResponseEntity
+                .ok()
+                .contentType(
+                        MediaType.parseMediaType(
+                                "text/html;charset=UTF-8"
+                        )
+                )
+                .body(html);
     }
 
 }
