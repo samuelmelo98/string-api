@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.stringtecnologia.string_api.model.dto.cliente.ClienteCreateDTO;
@@ -87,6 +88,9 @@ public class ClienteController {
 
 
     @PutMapping("/{clienteId}")
+    @PreAuthorize(
+            "@authz.has(authentication, 'CLIENTE_EDITAR')"
+    )
     public ResponseEntity<ClienteResponseDTO> atualizar(
             @PathVariable Long clienteId,
             @Valid @RequestBody ClienteUpdateDTO dto
