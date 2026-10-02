@@ -312,7 +312,8 @@ public interface OrdemServicoRepository
             'AGUARDANDO_APROVACAO',
             'APROVADA',
             'EM_EXECUCAO',
-            'CONCLUIDA'
+            'CONCLUIDA',
+            'REPROVADA'
         )
         """,
 
@@ -329,7 +330,8 @@ public interface OrdemServicoRepository
             'AGUARDANDO_APROVACAO',
             'APROVADA',
             'EM_EXECUCAO',
-            'CONCLUIDA'
+            'CONCLUIDA',
+            'REPROVADA'
         )
         """
     )
