@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -81,7 +82,7 @@ public class OrdemServico implements Serializable {
     @Column(
             name = "data_atribuicao_tecnico"
     )
-    private LocalDateTime dataAtribuicaoTecnico;
+    private Instant dataAtribuicaoTecnico;
 
     @ManyToOne(
             fetch = FetchType.LAZY,
@@ -137,23 +138,23 @@ public class OrdemServico implements Serializable {
             nullable = false,
             updatable = false
     )
-    private LocalDateTime dataAbertura;
+    private Instant dataAbertura;
 
     @UpdateTimestamp
     @Column(name = "data_atualizacao")
-    private LocalDateTime dataAtualizacao;
+    private Instant dataAtualizacao;
 
     @Column(name = "data_aprovacao")
-    private LocalDateTime dataAprovacao;
+    private Instant dataAprovacao;
 
     @Column(name = "data_inicio_servico")
-    private LocalDateTime dataInicioServico;
+    private Instant dataInicioServico;
 
     @Column(name = "data_conclusao")
-    private LocalDateTime dataConclusao;
+    private Instant dataConclusao;
 
     @Column(name = "data_entrega")
-    private LocalDateTime dataEntrega;
+    private Instant dataEntrega;
 
     @Column(
             name = "consulta_token",

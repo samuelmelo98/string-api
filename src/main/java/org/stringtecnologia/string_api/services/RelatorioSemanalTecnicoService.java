@@ -16,10 +16,7 @@ import org.stringtecnologia.string_api.repository.projection.RelatorioSemanalTec
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -443,12 +440,16 @@ public class RelatorioSemanalTecnicoService {
             );
         }
 
-        LocalDateTime inicioPeriodo =
-                inicio.atStartOfDay();
+        Instant inicioPeriodo =
+                inicio
+                        .atStartOfDay(ZONE_ID)
+                        .toInstant();
 
-        LocalDateTime fimExclusivo =
-                fim.plusDays(1)
-                        .atStartOfDay();
+        Instant fimExclusivo =
+                fim
+                        .plusDays(1)
+                        .atStartOfDay(ZONE_ID)
+                        .toInstant();
 
         List<RelatorioSemanalTecnicoOrdemProjection> ordens =
                 ordemServicoRepository

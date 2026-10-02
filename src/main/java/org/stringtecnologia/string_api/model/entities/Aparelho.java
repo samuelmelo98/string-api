@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -51,12 +52,12 @@ public class Aparelho implements Serializable {
     private String observacao;
     @CreationTimestamp
     @Column(name = "DATA_CADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
+    private Instant dataCadastro;
     @UpdateTimestamp
     @Column(name = "DATA_ATUALIZACAO")
-    private LocalDateTime dataAtualizacao;
-    private LocalDateTime dataSaida;
-    private LocalDateTime fimGarantia;
+    private Instant dataAtualizacao;
+    private Instant dataSaida;
+    private Instant fimGarantia;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TIPO_STATUS_APARELHO_ID", nullable = false)

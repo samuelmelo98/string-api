@@ -1,5 +1,6 @@
 package org.stringtecnologia.string_api.model.dto.aparelho;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public record AparelhoResponseDTO(
@@ -21,7 +22,7 @@ public record AparelhoResponseDTO(
 
         String numeroOrdemServico,
 
-        LocalDateTime dataEntradaAparelho,
+        Instant dataEntradaAparelho,
 
         String observacao
 

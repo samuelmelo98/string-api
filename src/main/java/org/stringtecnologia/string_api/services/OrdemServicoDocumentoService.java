@@ -17,6 +17,8 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Base64;
 
 import java.time.format.DateTimeFormatter;
@@ -144,50 +146,32 @@ public class OrdemServicoDocumentoService {
 
         dadosOrdem.put(
                 "dataAbertura",
-                ordem.getDataAbertura() != null
-                        ? ordem.getDataAbertura()
-                        .format(DATA_HORA)
-                        : ""
+                formatarDataHora(ordem.getDataAbertura())
         );
 
         dadosOrdem.put(
                 "dataAtualizacao",
-                ordem.getDataAtualizacao() != null
-                        ? ordem.getDataAtualizacao()
-                        .format(DATA_HORA)
-                        : ""
+               formatarDataHora(ordem.getDataAtualizacao())
         );
 
         dadosOrdem.put(
                 "dataAprovacao",
-                ordem.getDataAprovacao() != null
-                        ? ordem.getDataAprovacao()
-                        .format(DATA_HORA)
-                        : ""
+               formatarDataHora(ordem.getDataAprovacao())
         );
 
         dadosOrdem.put(
                 "dataInicioServico",
-                ordem.getDataInicioServico() != null
-                        ? ordem.getDataInicioServico()
-                        .format(DATA_HORA)
-                        : ""
+                formatarDataHora(ordem.getDataInicioServico())
         );
 
         dadosOrdem.put(
                 "dataConclusao",
-                ordem.getDataConclusao() != null
-                        ? ordem.getDataConclusao()
-                        .format(DATA_HORA)
-                        : ""
+                formatarDataHora(ordem.getDataConclusao())
         );
 
         dadosOrdem.put(
                 "dataEntrega",
-                ordem.getDataEntrega() != null
-                        ? ordem.getDataEntrega()
-                        .format(DATA_HORA)
-                        : ""
+                formatarDataHora(ordem.getDataEntrega())
         );
 
         dadosOrdem.put(
@@ -520,5 +504,15 @@ public class OrdemServicoDocumentoService {
                     e
             );
         }
+    }
+
+    private String formatarDataHora(Instant instant) {
+        if (instant == null) {
+            return "";
+        }
+
+        return instant
+                .atZone(ZoneId.of("America/Sao_Paulo"))
+                .format(DATA_HORA);
     }
 }
