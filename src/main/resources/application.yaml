@@ -3,54 +3,95 @@ server:
   forward-headers-strategy: native
 
 spring:
+  # ----------------------------------------------
+  # Configuração externa
+  # ----------------------------------------------
+  # Carrega C:\projetos\string-api\.env
+  config:
+    import: optional:file:./.env[.properties]
+
   application:
     name: string-api
+
+  profiles:
+    default: dev
+
+  # ----------------------------------------------
+  # Upload
+  # ----------------------------------------------
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
 
+  # ----------------------------------------------
+  # PostgreSQL
+  # ----------------------------------------------
   datasource:
     url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api
     username: ${USUARIO}
     password: ${SENHA}
     driver-class-name: org.postgresql.Driver
+
     hikari:
       connection-timeout: 60000
 
+  # ----------------------------------------------
+  # JPA / Hibernate
+  # ----------------------------------------------
   jpa:
     hibernate:
       ddl-auto: none
+
     properties:
       jakarta.persistence.query.timeout: 300000
+
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
     show-sql: true
 
-  profiles:
-    default: dev
-
+  # ----------------------------------------------
+  # OAuth2 / Keycloak
+  # ----------------------------------------------
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/certs
+          jwk-set-uri: "https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/certs"
 
+
+# ----------------------------------------------
+# Storage
+# ----------------------------------------------
 storage:
   provider: minio
 
+
+# ----------------------------------------------
+# MinIO
+# ----------------------------------------------
 minio:
-  endpoint: https://minio.cluster.stringtecnologiadf.org
+  endpoint: "https://minio.cluster.stringtecnologiadf.org"
   bucket: string-api
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
 
+
+# ----------------------------------------------
+# Logging
+# ----------------------------------------------
 logging:
   level:
     root: INFO
+
   pattern:
     dateformat: dd/MM/yyyy HH:mm:ss.SSS
 
+
+# ----------------------------------------------
+# APIs externas
+# ----------------------------------------------
 api:
   infosimples:
     api-base-url: ${URL}
@@ -59,18 +100,24 @@ api:
 
   string-email:
     api-base-url: ${STRING_EMAIL_URL:http://string-email:8080}
-    token-url: ${STRING_EMAIL_TOKEN_URL:https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/token}
+
+    token-url: "${STRING_EMAIL_TOKEN_URL:https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/token}"
+
     client-id: ${STRING_EMAIL_CLIENT_ID:string-api-email}
     client-secret: ${STRING_EMAIL_CLIENT_SECRET:}
+
     connect-timeout: ${STRING_EMAIL_CONNECT_TIMEOUT:5s}
     read-timeout: ${STRING_EMAIL_READ_TIMEOUT:15s}
     token-refresh-skew: ${STRING_EMAIL_TOKEN_REFRESH_SKEW:30s}
 
+
+# ----------------------------------------------
+# Aplicação
+# ----------------------------------------------
 app:
   email-test:
     enabled: ${APP_EMAIL_TEST_ENABLED:false}
     to: ${APP_EMAIL_TEST_TO:}
-
 
   security:
     keycloak:
@@ -90,12 +137,13 @@ app:
       - jpg
       - jpeg
 
+
+# ----------------------------------------------
+# String Tecnologia
+# ----------------------------------------------
 string:
   empresa:
     nome: String Tecnologia
-    cnpj: ${EMPRESA_CNPJ:48.851.932/0001-74}
-    telefone: ${EMPRESA_TELEFONE:55 (61) 3302-3957}
-    whatsapp: ${EMPRESA_WHATSAPP:55 (61) 99609-9684}
-
-#  ordem-servico:
-#    consulta-base-url: "${ORDEM_SERVICO_CONSULTA_BASE_URL:https://stringtecnologiadf.org:4200/consulta/os}"
+    cnpj: "${EMPRESA_CNPJ:48.851.932/0001-74}"
+    telefone: "${EMPRESA_TELEFONE:55 (61) 3302-3957}"
+    whatsapp: "${EMPRESA_WHATSAPP:55 (61) 99609-9684}"
