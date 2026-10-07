@@ -114,6 +114,10 @@ public class SecurityConfig {
                                 "/documentos/v1/**"
                         ).permitAll()
 
+                        .requestMatchers(
+                                "/api/public/webhooks/whatsapp/**"
+                        ).permitAll()
+
                         /*
                          * Todo o restante exige JWT válido.
                          */
