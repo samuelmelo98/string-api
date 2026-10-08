@@ -115,7 +115,8 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(
-                                "/api/public/webhooks/whatsapp/**"
+                                "/api/public/webhooks/whatsapp/**",
+                                "/api/public/whatsapp/embedded-signup/**"
                         ).permitAll()
 
                         /*
