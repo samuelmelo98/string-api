@@ -2,12 +2,10 @@ package org.stringtecnologia.string_api.model.dto.venda;
 
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.stringtecnologia.string_api.model.enums.FormaPagamento;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,5 +30,8 @@ public class VendaRequestDTO {
     @Valid
     @NotEmpty
     private List<VendaItemRequestDTO> itens = new ArrayList<>();
+
+    @NotNull(message = "Informe a forma de pagamento")
+    private FormaPagamento formaPagamento;
 
 }

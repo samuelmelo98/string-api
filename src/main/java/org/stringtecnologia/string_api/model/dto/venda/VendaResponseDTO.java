@@ -3,6 +3,7 @@ package org.stringtecnologia.string_api.model.dto.venda;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.stringtecnologia.string_api.model.enums.FormaPagamento;
 import org.stringtecnologia.string_api.model.enums.StatusVenda;
 
 import java.math.BigDecimal;
@@ -34,5 +35,7 @@ public class VendaResponseDTO {
     private BigDecimal valorTotal;
 
     private Integer quantidadeItens;
+
+    private FormaPagamento formaPagamento;
 
 }

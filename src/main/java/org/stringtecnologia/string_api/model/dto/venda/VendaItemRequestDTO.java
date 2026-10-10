@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.stringtecnologia.string_api.model.enums.FormaPagamento;
 
 import java.math.BigDecimal;
 
@@ -34,5 +35,4 @@ public class VendaItemRequestDTO {
             inclusive = true
     )
     private BigDecimal desconto = BigDecimal.ZERO;
-
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.stringtecnologia.string_api.model.enums.FormaPagamento;
 import org.stringtecnologia.string_api.model.enums.StatusVenda;
 
 import java.math.BigDecimal;
@@ -125,6 +126,13 @@ public class Venda {
     )
     @OrderBy("vendaItemId ASC")
     private List<VendaItem> itens = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "forma_pagamento",
+            length = 30
+    )
+    private FormaPagamento formaPagamento;
 
     @CreationTimestamp
     @Column(

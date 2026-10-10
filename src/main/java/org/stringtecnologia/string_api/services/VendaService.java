@@ -72,6 +72,8 @@ public class VendaService {
                 )
         );
 
+        venda.setFormaPagamento(request.getFormaPagamento());
+
         adicionarItens(
                 venda,
                 request.getItens()
@@ -615,6 +617,8 @@ public class VendaService {
         dto.setDesconto(
                 venda.getDesconto()
         );
+
+        dto.setFormaPagamento(venda.getFormaPagamento());
 
         dto.setValorTotal(
                 venda.getValorTotal()
