@@ -33,6 +33,7 @@ jobs:
       - name: Verificar Java
         run: |
           java -version
+          chmod +x ./mvnw
           ./mvnw -version
 
       # 🔹 variáveis
