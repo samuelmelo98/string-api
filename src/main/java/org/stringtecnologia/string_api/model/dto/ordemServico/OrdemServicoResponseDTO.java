@@ -1,7 +1,7 @@
 package org.stringtecnologia.string_api.model.dto.ordemServico;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record OrdemServicoResponseDTO(
 
@@ -43,19 +43,19 @@ public record OrdemServicoResponseDTO(
 
         String tecnicoResponsavelNome,
 
-        LocalDateTime dataAtribuicaoTecnico,
+        Instant dataAtribuicaoTecnico,
 
-        LocalDateTime dataAbertura,
+        Instant dataAbertura,
 
-        LocalDateTime dataAtualizacao,
+        Instant dataAtualizacao,
 
-        LocalDateTime dataAprovacao,
+        Instant dataAprovacao,
 
-        LocalDateTime dataInicioServico,
+        Instant dataInicioServico,
 
-        LocalDateTime dataConclusao,
+        Instant dataConclusao,
 
-        LocalDateTime dataEntrega
+        Instant dataEntrega
 
 ) {
 }

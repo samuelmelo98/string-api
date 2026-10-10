@@ -11,7 +11,10 @@ import org.stringtecnologia.string_api.repository.OrdemServicoRepository;
 import org.stringtecnologia.string_api.repository.projection.MetricaOrdemServicoProjection;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +26,6 @@ public class DashboardService {
 
     private static final ZoneId ZONE_ID =
             ZoneId.of("America/Sao_Paulo");
-
-    private static final ZoneId DATABASE_ZONE =
-            ZoneOffset.UTC;
 
     private final OrdemServicoRepository ordemServicoRepository;
 
@@ -42,6 +42,7 @@ public class DashboardService {
                 buscarEntreguesPorTecnico(hoje)
         );
     }
+
     /*
      * Última semana FECHADA:
      *
@@ -75,8 +76,7 @@ public class DashboardService {
             segunda = segundaSemanaAtual.minusWeeks(1);
         }
 
-        LocalDate sabado =
-                segunda.plusDays(5);
+        LocalDate sabado = segunda.plusDays(5);
 
         return consultar(
                 segunda,
@@ -88,8 +88,7 @@ public class DashboardService {
             LocalDate hoje
     ) {
 
-        LocalDate inicio =
-                hoje.minusDays(29);
+        LocalDate inicio = hoje.minusDays(29);
 
         return consultar(
                 inicio,
@@ -101,8 +100,7 @@ public class DashboardService {
             LocalDate hoje
     ) {
 
-        LocalDate inicio =
-                hoje.minusDays(364);
+        LocalDate inicio = hoje.minusDays(364);
 
         return consultar(
                 inicio,
@@ -115,26 +113,17 @@ public class DashboardService {
             LocalDate fim
     ) {
 
-        LocalDateTime inicioDataHora =
-                inicio
-                        .atStartOfDay(ZONE_ID)
-                        .withZoneSameInstant(DATABASE_ZONE)
-                        .toLocalDateTime();
+        Instant inicioDataHora =
+                inicioDoDia(inicio);
 
-        LocalDateTime fimExclusivo =
-                fim
-                        .plusDays(1)
-                        .atStartOfDay(ZONE_ID)
-                        .withZoneSameInstant(DATABASE_ZONE)
-                        .toLocalDateTime();
-
+        Instant fimExclusivo =
+                inicioDoDia(fim.plusDays(1));
 
         MetricaOrdemServicoProjection resultado =
                 ordemServicoRepository.buscarMetricas(
                         inicioDataHora,
                         fimExclusivo
                 );
-
 
         long total =
                 valor(resultado.getTotal());
@@ -151,7 +140,6 @@ public class DashboardService {
         long naoAutorizadas =
                 valor(resultado.getNaoAutorizadas());
 
-
         long outros =
                 Math.max(
                         0,
@@ -161,7 +149,6 @@ public class DashboardService {
                                 - entregues
                                 - naoAutorizadas
                 );
-
 
         return new MetricaOrdemServicoDTO(
                 inicio,
@@ -175,85 +162,73 @@ public class DashboardService {
         );
     }
 
-    private long valor(Long valor) {
-        return valor != null
-                ? valor
-                : 0L;
-    }
-
     private MetricaOrdemServicoDTO buscarEntreguesUltimos6Dias(
             LocalDate hoje
     ) {
-        LocalDate inicio = hoje.minusDays(5);
 
-        LocalDateTime inicioDataHora = inicio
-                .atStartOfDay(ZONE_ID)
-                .withZoneSameInstant(DATABASE_ZONE)
-                .toLocalDateTime();
+        LocalDate inicio =
+                hoje.minusDays(5);
 
-        LocalDateTime fimExclusivo = hoje
-                .plusDays(1)
-                .atStartOfDay(ZONE_ID)
-                .withZoneSameInstant(DATABASE_ZONE)
-                .toLocalDateTime();
+        Instant inicioDataHora =
+                inicioDoDia(inicio);
 
-        long entregues = ordemServicoRepository.contarEntreguesNoPeriodo(
-                inicioDataHora,
-                fimExclusivo
-        );
+        Instant fimExclusivo =
+                inicioDoDia(hoje.plusDays(1));
+
+        long entregues =
+                ordemServicoRepository.contarEntreguesNoPeriodo(
+                        inicioDataHora,
+                        fimExclusivo
+                );
 
         return new MetricaOrdemServicoDTO(
                 inicio,
                 hoje,
-                entregues, // total do card: somente entregues
-                0L,        // abertas
-                0L,        // autorizadas
                 entregues,
-                0L,        // não autorizadas
-                0L         // outros
+                0L,
+                0L,
+                entregues,
+                0L,
+                0L
         );
     }
 
     private List<MetricaEntregasTecnicoDTO> buscarEntreguesPorTecnico(
             LocalDate hoje
     ) {
-        LocalDateTime inicio = hoje
-                .minusDays(5)
-                .atStartOfDay(ZONE_ID)
-                .withZoneSameInstant(DATABASE_ZONE)
-                .toLocalDateTime();
 
-        LocalDateTime fimExclusivo = hoje
-                .plusDays(1)
-                .atStartOfDay(ZONE_ID)
-                .withZoneSameInstant(DATABASE_ZONE)
-                .toLocalDateTime();
+        Instant inicio =
+                inicioDoDia(
+                        hoje.minusDays(5)
+                );
 
-        Map<Long, BigDecimal> materialPorTecnico = new HashMap<>();
+        Instant fimExclusivo =
+                inicioDoDia(
+                        hoje.plusDays(1)
+                );
 
-        ordemServicoRepository.buscarMaterialPorTecnico(
-                inicio,
-                fimExclusivo,
-                StatusOrcamento.APROVADO
-        ).forEach(item -> materialPorTecnico.put(
-                item.getTecnicoId(),
-                moedaOuZero(item.getValorMaterial())
-        ));
+        Map<Long, BigDecimal> materialPorTecnico =
+                buscarMaterialPorTecnico(
+                        inicio,
+                        fimExclusivo
+                );
 
-        return ordemServicoRepository.buscarEntregasPorTecnico(
+        return ordemServicoRepository
+                .buscarEntregasPorTecnico(
                         inicio,
                         fimExclusivo
                 )
                 .stream()
                 .map(item -> {
-                    Long tecnicoId = item.getTecnicoId();
-                    String tecnicoNome = item.getTecnicoNome();
 
-                    if (tecnicoId == null) {
-                        tecnicoNome = "Sem técnico responsável";
-                    } else if (tecnicoNome == null || tecnicoNome.isBlank()) {
-                        tecnicoNome = "Técnico #" + tecnicoId;
-                    }
+                    Long tecnicoId =
+                            item.getTecnicoId();
+
+                    String tecnicoNome =
+                            resolverNomeTecnico(
+                                    tecnicoId,
+                                    item.getTecnicoNome()
+                            );
 
                     return new MetricaEntregasTecnicoDTO(
                             tecnicoId,
@@ -269,7 +244,75 @@ public class DashboardService {
                 .toList();
     }
 
-    private BigDecimal moedaOuZero(BigDecimal valor) {
-        return valor != null ? valor : BigDecimal.ZERO;
+    private Map<Long, BigDecimal> buscarMaterialPorTecnico(
+            Instant inicio,
+            Instant fimExclusivo
+    ) {
+
+        Map<Long, BigDecimal> materialPorTecnico =
+                new HashMap<>();
+
+        ordemServicoRepository
+                .buscarMaterialPorTecnico(
+                        inicio,
+                        fimExclusivo,
+                        StatusOrcamento.APROVADO
+                )
+                .forEach(item ->
+                        materialPorTecnico.put(
+                                item.getTecnicoId(),
+                                moedaOuZero(
+                                        item.getValorMaterial()
+                                )
+                        )
+                );
+
+        return materialPorTecnico;
+    }
+
+    private String resolverNomeTecnico(
+            Long tecnicoId,
+            String tecnicoNome
+    ) {
+
+        if (tecnicoId == null) {
+            return "Sem técnico responsável";
+        }
+
+        if (
+                tecnicoNome == null
+                        || tecnicoNome.isBlank()
+        ) {
+            return "Técnico #" + tecnicoId;
+        }
+
+        return tecnicoNome;
+    }
+
+    private Instant inicioDoDia(
+            LocalDate data
+    ) {
+
+        return data
+                .atStartOfDay(ZONE_ID)
+                .toInstant();
+    }
+
+    private long valor(
+            Long valor
+    ) {
+
+        return valor != null
+                ? valor
+                : 0L;
+    }
+
+    private BigDecimal moedaOuZero(
+            BigDecimal valor
+    ) {
+
+        return valor != null
+                ? valor
+                : BigDecimal.ZERO;
     }
 }

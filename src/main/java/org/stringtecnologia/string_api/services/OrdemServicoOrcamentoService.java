@@ -18,6 +18,7 @@ import org.stringtecnologia.string_api.util.CategoriaDominio;
 import org.stringtecnologia.string_api.util.StatusAparelho;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -494,7 +495,7 @@ public class OrdemServicoOrcamentoService {
         );
 
         ordem.setDataAprovacao(
-                agora
+                Instant.now()
         );
 
         ordemServicoOrcamentoRepository

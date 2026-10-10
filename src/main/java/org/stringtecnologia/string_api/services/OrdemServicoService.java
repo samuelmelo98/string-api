@@ -18,6 +18,8 @@ import org.stringtecnologia.string_api.repository.OrdemServicoRepository;
 import org.stringtecnologia.string_api.repository.UserRepository;
 import org.stringtecnologia.string_api.util.CategoriaDominio;
 import org.stringtecnologia.string_api.util.StatusAparelho;
+
+import java.time.Instant;
 import java.util.UUID;
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -452,7 +454,7 @@ public class OrdemServicoService {
         );
 
         ordem.setDataAtribuicaoTecnico(
-                LocalDateTime.now()
+                Instant.now()
         );
 
         return toResponse(
@@ -526,7 +528,7 @@ public class OrdemServicoService {
         );
 
         ordem.setDataInicioServico(
-                LocalDateTime.now()
+                Instant.now()
         );
 
         return toResponse(
@@ -595,7 +597,7 @@ public class OrdemServicoService {
         }
 
         ordem.setDataConclusao(
-                LocalDateTime.now()
+                Instant.now()
         );
 
         ordem.setStatus(
@@ -678,8 +680,8 @@ public class OrdemServicoService {
             );
         }
 
-        LocalDateTime agora =
-                LocalDateTime.now();
+        Instant agora =
+                Instant.now();
 
 
         /*
