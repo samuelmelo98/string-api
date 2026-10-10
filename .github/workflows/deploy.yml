@@ -23,12 +23,17 @@ jobs:
         uses: actions/checkout@v4
 
       # 🔹 Java
-      - name: Setup Java
+      - name: Setup Java 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           cache: 'maven'
+
+      - name: Verificar Java
+        run: |
+          java -version
+          ./mvnw -version
 
       # 🔹 variáveis
       - name: Definir variáveis
