@@ -1,6 +1,7 @@
 package org.stringtecnologia.string_api.model.dto.venda;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.stringtecnologia.string_api.model.enums.StatusVenda;
@@ -37,6 +38,11 @@ public class VendaDetalheDTO {
 
     private String observacao;
 
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "dd/MM/yyyy HH:mm:ss",
+            timezone = "America/Sao_Paulo"
+    )
     private Instant dataCriacao;
 
     private Instant dataAtualizacao;

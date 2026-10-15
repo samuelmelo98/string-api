@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -36,6 +37,10 @@ public class VendaService {
     private final VendaRepository vendaRepository;
 
     private final ClienteRepository clienteRepository;
+
+    private static final DateTimeFormatter FORMATO_DATA =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                    .withZone(ZoneId.of("America/Sao_Paulo"));
 
     @Transactional
     public VendaDetalheDTO criar(
@@ -812,6 +817,10 @@ public class VendaService {
                         .getNome()
         );
 
+    }
+
+    private String formatarData(Instant data) {
+        return data == null ? "" : FORMATO_DATA.format(data);
     }
 
 }

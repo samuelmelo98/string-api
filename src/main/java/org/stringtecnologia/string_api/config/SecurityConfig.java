@@ -103,6 +103,10 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(
+                                "/api/ocr/imagens/**"
+                        ).permitAll()
+
+                        .requestMatchers(
                                 "/api/v1/cpf/**"
                         ).permitAll()
 

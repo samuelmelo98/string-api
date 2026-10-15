@@ -1,21 +1,24 @@
+
 spring:
   config:
     activate:
       on-profile: dev
 
   # ----------------------------------------------
-  # PostgreSQL
+  # PostgreSQL - Local
   # ----------------------------------------------
-  # Desenvolvimento local:
-  # localhost:15432 -> string-dev-router -> PostgreSQL
   datasource:
-    url: jdbc:postgresql://${NAME_SERVER:localhost}:${PORT:15432}/string_api
-    username: ${USUARIO}
-    password: ${SENHA}
+    url: jdbc:postgresql://localhost:5432/string_dev
+    username: ${USUARIO:dev}
+    password: ${SENHA:dev123456}
     driver-class-name: org.postgresql.Driver
 
+  # ----------------------------------------------
+  # JPA / Hibernate
+  # ----------------------------------------------
   jpa:
     show-sql: false
+    open-in-view: false
 
     properties:
       hibernate:
@@ -28,7 +31,6 @@ spring:
   # ----------------------------------------------
   flyway:
     enabled: true
-
     locations:
       - classpath:db/migration
 
@@ -38,8 +40,6 @@ spring:
     clean-disabled: true
     connect-retries: 5
 
-    # Temporário enquanto introduzimos Flyway
-    # em um banco que já possui schema.
     baseline-on-migrate: true
     baseline-version: "20261004.00"
     baseline-description: "String API - schema existente antes do Flyway"
@@ -51,29 +51,82 @@ spring:
     type: redis
 
   # ----------------------------------------------
-  # Redis
+  # Redis - Docker WSL2
   # ----------------------------------------------
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD:}
 
-      # Não usamos RedisRepository/@RedisHash.
-      # O autocomplete usa StringRedisTemplate.
       repositories:
         enabled: false
 
+# ----------------------------------------------
+# MinIO - Docker WSL2
+# ----------------------------------------------
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  bucket: ${MINIO_BUCKET:string-api}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
 
 # ----------------------------------------------
-# Aplicação DEV
+# OCR - Processamento de imagens
+# ----------------------------------------------
+ocr:
+  enabled: true
+
+  # Motor ativo: quarkus ou tesseract
+  engine: ${OCR_ENGINE:quarkus}
+
+  # --------------------------------------------
+  # Microsservico Quarkus + PaddleOCR
+  # --------------------------------------------
+  quarkus:
+    url: ${OCR_QUARKUS_URL:http://localhost:8081/api/v1/ocr/extrair}
+    api-key: ${OCR_QUARKUS_API_KEY:dev-only-change-me}
+    timeout-seconds: 240
+
+  # --------------------------------------------
+  # Tesseract - Motor alternativo
+  # --------------------------------------------
+  segunda-passagem: true
+
+  tessdata:
+    path: ${OCR_TESSDATA_PATH:./tessdata}
+    language: por+eng
+
+  # --------------------------------------------
+  # Armazenamento de imagens
+  # --------------------------------------------
+  storage:
+    provider: minio
+    prefix: ocr/imagens
+
+  # --------------------------------------------
+  # Worker assincrono
+  # --------------------------------------------
+  worker:
+    enabled: true
+    delay-ms: 3000
+    batch-size: 10
+
+  # --------------------------------------------
+  # Limites de processamento
+  # --------------------------------------------
+  processing:
+    max-image-size: 15MB
+    min-confidence: 0.70
+
+# ----------------------------------------------
+# Aplicacao DEV
 # ----------------------------------------------
 app:
-  frontend-url: "https://stringtecnologiadf.org:4200"
+  frontend-url: https://stringtecnologiadf.org:4200
 
   storage:
     path: documentos
-
 
 # ----------------------------------------------
 # Logging DEV
@@ -85,10 +138,12 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
 
+    # Corrigido: ocr em vez de orc
+    org.stringtecnologia.string_api.ocr: DEBUG
 
 # ----------------------------------------------
 # String Tecnologia DEV
 # ----------------------------------------------
 string:
   ordem-servico:
-    consulta-base-url: "${ORDEM_SERVICO_CONSULTA_BASE_URL:https://stringtecnologiadf.org:4200/consulta/os}"
+    consulta-base-url: ${ORDEM_SERVICO_CONSULTA_BASE_URL:https://stringtecnologiadf.org:4200/consulta/os}

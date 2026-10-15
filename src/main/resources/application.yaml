@@ -153,3 +153,26 @@ string:
 whatsapp:
   webhook:
     verify-token: ${WHATSAPP_WEBHOOK_VERIFY_TOKEN}
+
+# ----------------------------------------------
+# OCR - Reconhecimento de imagens e códigos
+# ----------------------------------------------
+ocr:
+  enabled: ${OCR_ENABLED:true}
+
+  storage:
+    provider: ${OCR_STORAGE_PROVIDER:minio}
+    prefix: ${OCR_STORAGE_PREFIX:ocr/imagens}
+
+  tessdata:
+    path: ${OCR_TESSDATA_PATH:./tessdata}
+    language: ${OCR_TESSDATA_LANGUAGE:por+eng}
+
+  worker:
+    enabled: ${OCR_WORKER_ENABLED:true}
+    delay-ms: ${OCR_WORKER_DELAY_MS:3000}
+    batch-size: ${OCR_WORKER_BATCH_SIZE:10}
+
+  processing:
+    max-image-size: 15MB
+    min-confidence: 0.70
