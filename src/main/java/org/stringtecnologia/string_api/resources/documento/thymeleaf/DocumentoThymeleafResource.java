@@ -9,7 +9,6 @@ import org.stringtecnologia.string_api.documento.dto.DocumentoResponseDTO;
 import org.stringtecnologia.string_api.documento.dto.OrdemServicoDocumentoDTO;
 import org.stringtecnologia.string_api.model.dto.documento.DocumentoPreviewRequestDTO;
 import org.stringtecnologia.string_api.services.*;
-import org.stringtecnologia.string_api.util.DominioEnum;
 import org.stringtecnologia.string_api.util.HtmlNormalizerUtil;
 import org.stringtecnologia.string_api.util.TipoDocumentoDominio;
 

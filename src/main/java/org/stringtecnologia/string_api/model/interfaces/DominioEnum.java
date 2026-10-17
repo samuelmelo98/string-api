@@ -1,4 +1,6 @@
-package org.stringtecnologia.string_api.util;
+package org.stringtecnologia.string_api.model.interfaces;
+
+import org.stringtecnologia.string_api.util.CategoriaDominio;
 
 public interface DominioEnum {
     CategoriaDominio getCategoria();

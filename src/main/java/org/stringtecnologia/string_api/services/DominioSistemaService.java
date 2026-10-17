@@ -9,7 +9,7 @@ import org.stringtecnologia.string_api.model.dto.dominio.sistema.DominioSistemaR
 import org.stringtecnologia.string_api.model.entities.DominioSistema;
 import org.stringtecnologia.string_api.repository.SistemaDominioRepository;
 import org.stringtecnologia.string_api.util.CategoriaDominio;
-import org.stringtecnologia.string_api.util.DominioEnum;
+import org.stringtecnologia.string_api.model.interfaces.DominioEnum;
 import org.stringtecnologia.string_api.util.exceptions.DominioNaoEncontradoException;
 
 import java.util.List;

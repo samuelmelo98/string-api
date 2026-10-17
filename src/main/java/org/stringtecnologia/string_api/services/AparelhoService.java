@@ -17,6 +17,7 @@ import org.stringtecnologia.string_api.model.entities.DominioSistema;
 import org.stringtecnologia.string_api.model.entities.Marca;
 import org.stringtecnologia.string_api.model.entities.TipoAparelho;
 import org.stringtecnologia.string_api.model.factory.aparelho.AparelhoFactory;
+import org.stringtecnologia.string_api.model.interfaces.AparelhoServiceI;
 import org.stringtecnologia.string_api.repository.AparelhoRepository;
 import org.stringtecnologia.string_api.repository.ClienteRepository;
 import org.stringtecnologia.string_api.util.StatusAparelho;

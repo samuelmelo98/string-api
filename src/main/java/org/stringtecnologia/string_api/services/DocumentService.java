@@ -2,7 +2,7 @@ package org.stringtecnologia.string_api.services;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.stringtecnologia.string_api.model.entities.DocumentProcessor;
+import org.stringtecnologia.string_api.model.interfaces.DocumentProcessor;
 import org.stringtecnologia.string_api.model.entities.DocumentTemplate;
 import org.stringtecnologia.string_api.repository.DocumentRepository;
 

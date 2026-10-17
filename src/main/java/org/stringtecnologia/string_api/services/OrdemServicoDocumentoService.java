@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.stringtecnologia.string_api.model.entities.Aparelho;
 import org.stringtecnologia.string_api.model.entities.Cliente;
-import org.stringtecnologia.string_api.model.entities.DocumentProcessor;
+import org.stringtecnologia.string_api.model.interfaces.DocumentProcessor;
 import org.stringtecnologia.string_api.model.entities.DocumentoTemplate;
 import org.stringtecnologia.string_api.model.entities.OrdemServico;
 import org.stringtecnologia.string_api.repository.DocumentoTemplateRepository;

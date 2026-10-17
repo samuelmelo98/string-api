@@ -3,7 +3,7 @@ package org.stringtecnologia.string_api.services;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.stringtecnologia.string_api.model.entities.DocumentProcessor;
+import org.stringtecnologia.string_api.model.interfaces.DocumentProcessor;
 import org.stringtecnologia.string_api.model.dto.relatorio.RelatorioSemanalTecnicoDTO;
 import org.stringtecnologia.string_api.model.dto.relatorio.RelatorioSemanalTecnicoItemDTO;
 import org.stringtecnologia.string_api.model.dto.relatorio.RelatorioSemanalTecnicoPagamentoDTO;

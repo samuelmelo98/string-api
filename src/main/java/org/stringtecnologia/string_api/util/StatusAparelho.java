@@ -1,5 +1,7 @@
 package org.stringtecnologia.string_api.util;
 
+import org.stringtecnologia.string_api.model.interfaces.DominioEnum;
+
 public enum StatusAparelho implements DominioEnum {
 
     PARA_ORCAMENTO,

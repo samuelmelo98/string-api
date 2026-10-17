@@ -1,4 +1,4 @@
-package org.stringtecnologia.string_api.services;
+package org.stringtecnologia.string_api.model.interfaces;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

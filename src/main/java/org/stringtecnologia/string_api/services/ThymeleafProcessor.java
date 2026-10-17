@@ -2,7 +2,7 @@ package org.stringtecnologia.string_api.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.stringtecnologia.string_api.model.entities.DocumentProcessor;
+import org.stringtecnologia.string_api.model.interfaces.DocumentProcessor;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 

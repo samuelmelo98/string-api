@@ -1,5 +1,7 @@
 package org.stringtecnologia.string_api.util;
 
+import org.stringtecnologia.string_api.model.interfaces.DominioEnum;
+
 public enum TipoDocumentoDominio implements DominioEnum {
     TERMO_ADIANTAMENTO_PARA_ASSINAR,
     TERMO_ADIANTAMENTO_ASSINADO,

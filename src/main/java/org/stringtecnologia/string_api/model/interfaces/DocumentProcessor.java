@@ -1,4 +1,4 @@
-package org.stringtecnologia.string_api.model.entities;
+package org.stringtecnologia.string_api.model.interfaces;
 
 import java.util.Map;
 
