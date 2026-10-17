@@ -1,12 +1,23 @@
+
+# ============================================================
+# STRING TECNOLOGIA - APPLICATION
+# Java 25 / Spring Boot 4.0.1
+# Configuracoes compartilhadas entre DEV e PROD
+# ============================================================
+
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   forward-headers-strategy: native
 
+# ============================================================
+# SPRING BOOT
+# ============================================================
 spring:
-  # ----------------------------------------------
-  # Configuração externa
-  # ----------------------------------------------
-  # Carrega C:\projetos\string-api\.env
+
+  # ----------------------------------------------------------
+  # Carregamento do arquivo .env
+  # Formato: CHAVE=VALOR
+  # ----------------------------------------------------------
   config:
     import: optional:file:./.env[.properties]
 
@@ -16,19 +27,20 @@ spring:
   profiles:
     default: dev
 
-  # ----------------------------------------------
-  # Upload
-  # ----------------------------------------------
+  # ----------------------------------------------------------
+  # Upload de arquivos
+  # ----------------------------------------------------------
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
 
-  # ----------------------------------------------
+  # ----------------------------------------------------------
   # PostgreSQL
-  # ----------------------------------------------
+  # Pode ser sobrescrito por application-dev.yaml
+  # ----------------------------------------------------------
   datasource:
-    url: jdbc:postgresql://${NAME_SERVER}:${PORT}/string_api
+    url: jdbc:postgresql://${NAME_SERVER:localhost}:${PORT:5432}/string_api
     username: ${USUARIO}
     password: ${SENHA}
     driver-class-name: org.postgresql.Driver
@@ -36,73 +48,93 @@ spring:
     hikari:
       connection-timeout: 60000
 
-  # ----------------------------------------------
-  # JPA / Hibernate
-  # ----------------------------------------------
+  # ----------------------------------------------------------
+  # Hibernate / JPA
+  # ----------------------------------------------------------
   jpa:
     hibernate:
       ddl-auto: none
 
+    open-in-view: false
+    show-sql: false
 
     properties:
       jakarta.persistence.query.timeout: 300000
 
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-    show-sql: true
-
-  # ----------------------------------------------
-  # OAuth2 / Keycloak
-  # ----------------------------------------------
+  # ----------------------------------------------------------
+  # Segurança OAuth2 / Keycloak
+  # ----------------------------------------------------------
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: "https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/certs"
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/certs}
 
-
-# ----------------------------------------------
-# Storage
-# ----------------------------------------------
+# ============================================================
+# ARMAZENAMENTO
+# ============================================================
 storage:
   provider: minio
 
-
-# ----------------------------------------------
-# MinIO
-# ----------------------------------------------
+# ============================================================
+# MINIO
+# As credenciais sao fornecidas por variaveis de ambiente.
+# ============================================================
 minio:
-  endpoint: "https://minio.cluster.stringtecnologiadf.org"
-  bucket: string-api
+  endpoint: ${MINIO_ENDPOINT:https://minio.cluster.stringtecnologiadf.org}
+  bucket: ${MINIO_BUCKET:string-api}
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
 
+# ============================================================
+# OCR - PARAMETROS GERAIS
+# Endpoints e motores especificos ficam nos perfis.
+# ============================================================
+ocr:
+  enabled: ${OCR_ENABLED:true}
+  engine: ${OCR_ENGINE:quarkus}
 
-# ----------------------------------------------
-# Logging
-# ----------------------------------------------
+  storage:
+    provider: minio
+    prefix: ${OCR_STORAGE_PREFIX:ocr/imagens}
+
+  processing:
+    max-image-size: 15MB
+    min-confidence: 0.70
+
+# ============================================================
+# LOGGING
+# ============================================================
 logging:
   level:
     root: INFO
 
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+
   pattern:
     dateformat: dd/MM/yyyy HH:mm:ss.SSS
 
-
-# ----------------------------------------------
-# APIs externas
-# ----------------------------------------------
+# ============================================================
+# INTEGRACOES EXTERNAS
+# ============================================================
 api:
+
+  # ----------------------------------------------------------
+  # InfoSimples
+  # ----------------------------------------------------------
   infosimples:
     api-base-url: ${URL}
     api-key: ${KEY}
     time-out: 30s
 
+  # ----------------------------------------------------------
+  # String Email
+  # ----------------------------------------------------------
   string-email:
     api-base-url: ${STRING_EMAIL_URL:http://string-email:8080}
 
-    token-url: "${STRING_EMAIL_TOKEN_URL:https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/token}"
+    token-url: ${STRING_EMAIL_TOKEN_URL:https://auth.stringtecnologiadf.org/realms/stringtecnologia/protocol/openid-connect/token}
 
     client-id: ${STRING_EMAIL_CLIENT_ID:string-api-email}
     client-secret: ${STRING_EMAIL_CLIENT_SECRET:}
@@ -111,19 +143,28 @@ api:
     read-timeout: ${STRING_EMAIL_READ_TIMEOUT:15s}
     token-refresh-skew: ${STRING_EMAIL_TOKEN_REFRESH_SKEW:30s}
 
-
-# ----------------------------------------------
-# Aplicação
-# ----------------------------------------------
+# ============================================================
+# APLICACAO
+# ============================================================
 app:
+
+  # ----------------------------------------------------------
+  # Teste de envio de e-mail
+  # ----------------------------------------------------------
   email-test:
     enabled: ${APP_EMAIL_TEST_ENABLED:false}
     to: ${APP_EMAIL_TEST_TO:}
 
+  # ----------------------------------------------------------
+  # Configuracao do Keycloak
+  # ----------------------------------------------------------
   security:
     keycloak:
       client-id: string-api
 
+  # ----------------------------------------------------------
+  # Restricoes de arquivos
+  # ----------------------------------------------------------
   storage:
     max-size: 10MB
 
@@ -138,10 +179,9 @@ app:
       - jpg
       - jpeg
 
-
-# ----------------------------------------------
-# String Tecnologia
-# ----------------------------------------------
+# ============================================================
+# STRING TECNOLOGIA
+# ============================================================
 string:
   empresa:
     nome: String Tecnologia
@@ -149,7 +189,9 @@ string:
     telefone: "${EMPRESA_TELEFONE:55 (61) 3302-3957}"
     whatsapp: "${EMPRESA_WHATSAPP:55 (61) 99609-9684}"
 
-
+# ============================================================
+# WHATSAPP CLOUD API
+# ============================================================
 whatsapp:
   webhook:
-    verify-token: ${WHATSAPP_WEBHOOK_VERIFY_TOKEN}
+    verify-token: ${WHATSAPP_WEBHOOK_VERIFY_TOKEN:}
