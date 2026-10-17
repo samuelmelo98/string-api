@@ -20,12 +20,14 @@ public class OcrImagemService {
     private final OcrCodigoRepository codigos;
     private final OcrStorage storage;
     private final OcrIndexador indexador;
+    private final OcrCadastroPersistenciaService cadastroPersistencia;
 
-    public OcrImagemService(OcrImagemRepository imagens, OcrCodigoRepository codigos, OcrStorage storage, OcrIndexador indexador) {
+    public OcrImagemService(OcrImagemRepository imagens, OcrCodigoRepository codigos, OcrStorage storage, OcrIndexador indexador, OcrCadastroPersistenciaService cadastroPersistencia) {
         this.imagens = imagens;
         this.codigos = codigos;
         this.storage = storage;
         this.indexador = indexador;
+        this.cadastroPersistencia = cadastroPersistencia;
     }
 
     public ImagemDto upload(MultipartFile file) throws Exception {
@@ -54,7 +56,10 @@ public class OcrImagemService {
         }
         i.storageKey = UUID.randomUUID() + (i.contentType.equals("image/png") ? ".png" : ".jpg");
         storage.salvar(i.storageKey, bytes);
-        return ImagemDto.from(imagens.save(i));
+
+        OcrImagem salva = cadastroPersistencia.salvarComEvento(i);
+
+        return ImagemDto.from(salva);
     }
 
     public ImagemDto detalhe(Long id) {

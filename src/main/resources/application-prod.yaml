@@ -1,18 +1,18 @@
+
+
+
 spring:
   config:
     activate:
       on-profile: prod
 
-#----------------------------------------------
-#Redis
-#----------------------------------------------
   cache:
     type: redis
 
   data:
     redis:
-      host: redis
-      port: 6379
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
 
 app:
@@ -24,7 +24,30 @@ logging:
   level:
     org.springframework.security: INFO
 
-
 string:
   ordem-servico:
-    consulta-base-url: "${ORDEM_SERVICO_CONSULTA_BASE_URL:https://site-html.cluster.stringtecnologiadf.org/consulta/os}"
+    consulta-base-url: ${ORDEM_SERVICO_CONSULTA_BASE_URL:https://site-html.cluster.stringtecnologiadf.org/consulta/os}
+
+ocr:
+  enabled: ${OCR_ENABLED:true}
+  engine: ${OCR_ENGINE:quarkus}
+
+  storage:
+    provider: ${OCR_STORAGE_PROVIDER:minio}
+    prefix: ${OCR_STORAGE_PREFIX:ocr/imagens}
+
+  worker:
+    enabled: ${OCR_WORKER_ENABLED:true}
+    delay-ms: ${OCR_WORKER_DELAY_MS:3000}
+    batch-size: ${OCR_WORKER_BATCH_SIZE:10}
+
+  processing:
+    max-image-size: ${OCR_MAX_IMAGE_SIZE:15MB}
+    min-confidence: ${OCR_MIN_CONFIDENCE:0.70}
+
+  quarkus:
+    url: ${OCR_QUARKUS_URL:http://ocr-engine.prod.svc.cluster.local:8080/api/v1/ocr/extrair}
+    api-key: ${OCR_QUARKUS_API_KEY}
+    connect-timeout: ${OCR_QUARKUS_CONNECT_TIMEOUT:10s}
+    read-timeout: ${OCR_QUARKUS_READ_TIMEOUT:240s}
+

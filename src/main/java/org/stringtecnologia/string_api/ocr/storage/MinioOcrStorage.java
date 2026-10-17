@@ -3,6 +3,8 @@ package org.stringtecnologia.string_api.ocr.storage;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,8 @@ public class MinioOcrStorage implements OcrStorage {
     private final MinioClient minioClient;
     private final String bucket;
     private final String prefix;
+    private static final Logger log =
+            LoggerFactory.getLogger(MinioOcrStorage.class);
 
     public MinioOcrStorage(
             MinioClient minioClient,
@@ -43,6 +47,15 @@ public class MinioOcrStorage implements OcrStorage {
                             .build()
             );
         } catch (Exception e) {
+
+            log.error(
+                    "Falha ao salvar imagem OCR no MinIO. bucket={}, prefix={}, arquivo={}",
+                    bucket,
+                    prefix,
+                    key,
+                    e
+            );
+
             throw new IOException("Erro ao salvar imagem no MinIO", e);
         }
     }

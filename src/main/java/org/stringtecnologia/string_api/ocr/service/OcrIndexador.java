@@ -24,25 +24,38 @@ public class OcrIndexador {
 
     @Transactional
     public boolean iniciar(Long id) {
-        OcrImagem imagem = imagens.findById(id).orElseThrow();
-        if (imagem.status != OcrStatus.PENDENTE) return false;
-        imagem.status = OcrStatus.PROCESSANDO;
-        imagem.tentativa++;
-        imagens.save(imagem);
-        return true;
+        return imagens.iniciarProcessamento(
+                id,
+                OcrStatus.PENDENTE,
+                OcrStatus.PROCESSANDO
+        ) == 1;
     }
 
     @Transactional
     public void sucesso(Long id, List<OcrExtractor.Achado> achados) {
         OcrImagem imagem = imagens.findById(id).orElseThrow();
+
+        if (imagem.status != OcrStatus.PROCESSANDO) {
+            throw new IllegalStateException(
+                    "Imagem não está em processamento: " + id
+            );
+        }
+
         codigos.deleteByImagemId(id);
         codigos.flush();
+
         Set<String> vistos = new HashSet<>();
+
         for (var a : achados) {
             String n = OcrNormalizer.normalizar(a.valor());
-            if (n.length() < 3 || n.length() > 255 || !vistos.add(n)) continue;
+
+            if (n.length() < 3 || n.length() > 255 || !vistos.add(n)) {
+                continue;
+            }
+
             codigos.save(new OcrCodigo(imagem, a.valor(), n, a.origem()));
         }
+
         imagem.status = OcrStatus.PROCESSADO;
         imagem.processadoEm = Instant.now();
         imagem.erro = null;
@@ -50,9 +63,20 @@ public class OcrIndexador {
 
     @Transactional
     public void falha(Long id, Exception ex) {
-        OcrImagem imagem = imagens.findById(id).orElseThrow();
+
+        OcrImagem imagem = imagens.findById(id)
+                .orElseThrow();
+
+        if (imagem.status != OcrStatus.PENDENTE
+                && imagem.status != OcrStatus.PROCESSANDO) {
+            throw new IllegalStateException(
+                    "Não é possível registrar falha no status: "
+                            + imagem.status
+            );
+        }
+
         imagem.status = OcrStatus.ERRO;
-        imagem.erro = ex.getClass().getSimpleName() + ": " + String.valueOf(ex.getMessage()).substring(0, Math.min(500, String.valueOf(ex.getMessage()).length()));
+        imagem.erro = resumirErro(ex);
     }
 
     @Transactional
@@ -61,5 +85,26 @@ public class OcrIndexador {
         if (imagem.status == OcrStatus.PROCESSANDO) throw new IllegalStateException("Em processamento");
         imagem.status = OcrStatus.PENDENTE;
         imagem.erro = null;
+    }
+
+    @Transactional
+    public void prepararNovaTentativa(Long id, Exception ex) {
+        OcrImagem imagem = imagens.findById(id).orElseThrow();
+
+        if (imagem.status != OcrStatus.PROCESSANDO) {
+            throw new IllegalStateException(
+                    "Imagem não está em processamento: " + id
+            );
+        }
+
+        imagem.status = OcrStatus.PENDENTE;
+        imagem.erro = resumirErro(ex);
+    }
+
+    private String resumirErro(Exception ex) {
+        String mensagem = ex.getClass().getSimpleName()
+                + ": " + ex.getMessage();
+
+        return mensagem.substring(0, Math.min(500, mensagem.length()));
     }
 }

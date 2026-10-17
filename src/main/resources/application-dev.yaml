@@ -1,41 +1,95 @@
 
+# ============================================================
+# STRING TECNOLOGIA - AMBIENTE DEV
+# Java 25 | Spring Boot 4 | PostgreSQL 17
+# ============================================================
+#
+# AMBIENTE:
+#   Windows 11 + WSL2 + Kubernetes K3s
+#
+# SERVICOS:
+#   PostgreSQL DEV : 127.0.0.1:5432
+#   Redis PROD     : 127.0.0.1:16379 (SSH)
+#   MinIO PROD     : 127.0.0.1:19000 (SSH)
+#   Quarkus OCR    : 127.0.0.1:18082 (SSH)
+#   Kafka PROD     : 127.0.0.2/3/4:9092 (SSH)
+#
+# ESTAGIO ATUAL:
+#   Publicador Outbox : ATIVO
+#   Consumer Kafka    : DESATIVADO
+#   Worker SQL        : DESATIVADO
+#
+# CREDENCIAIS:
+#   Carregadas do .env ou variaveis de ambiente.
+#   Nunca versionar senhas e tokens.
+#
+# ============================================================
+
 spring:
+
+  # ==========================================================
+  # 1. PERFIL
+  # ==========================================================
+
   config:
     activate:
       on-profile: dev
 
-  # ----------------------------------------------
-  # PostgreSQL - Local
-  # ----------------------------------------------
+  # ==========================================================
+  # 2. POSTGRESQL LOCAL - WSL2 / DOCKER
+  # ==========================================================
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/string_dev
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/string_dev}
     username: ${USUARIO:dev}
     password: ${SENHA:dev123456}
     driver-class-name: org.postgresql.Driver
 
-  # ----------------------------------------------
-  # JPA / Hibernate
-  # ----------------------------------------------
+    hikari:
+      pool-name: StringApiDevPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 60000
+      validation-timeout: 5000
+
+  # ==========================================================
+  # 3. JPA / HIBERNATE
+  # ==========================================================
+
   jpa:
-    show-sql: false
+    hibernate:
+      ddl-auto: none
+
     open-in-view: false
+    show-sql: false
 
     properties:
       hibernate:
         format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
+        highlight_sql: false
+        use_sql_comments: false
 
-  # ----------------------------------------------
-  # Flyway
-  # ----------------------------------------------
+  # ==========================================================
+  # 4. FLYWAY - MIGRACOES DO BANCO
+  # ==========================================================
+  #
+  # Inclui a tabela:
+  #   tb_ocr_outbox
+  #
+  # O Flyway valida e executa migrations pendentes.
+  # Nao permite limpeza automatica do banco.
+  #
+  # ==========================================================
+
   flyway:
     enabled: true
+
     locations:
       - classpath:db/migration
 
     default-schema: public
     encoding: UTF-8
+
     validate-on-migrate: true
     clean-disabled: true
     connect-retries: 5
@@ -44,106 +98,379 @@ spring:
     baseline-version: "20261004.00"
     baseline-description: "String API - schema existente antes do Flyway"
 
-  # ----------------------------------------------
-  # Cache
-  # ----------------------------------------------
+  # ==========================================================
+  # 5. REDIS - PRODUCAO VIA SSH
+  # ==========================================================
+  #
+  # Endpoint local:
+  #   127.0.0.1:16379
+  #
+  # O prefixo isola as chaves do Spring Cache DEV.
+  #
+  # ATENCAO:
+  # RedisTemplate e operacoes diretas precisam de
+  # isolamento proprio. Esta configuracao nao impede
+  # que componentes customizados alterem chaves PROD.
+  #
+  # ==========================================================
+
   cache:
     type: redis
 
-  # ----------------------------------------------
-  # Redis - Docker WSL2
-  # ----------------------------------------------
+    redis:
+      key-prefix: "string-api:dev:"
+      use-key-prefix: true
+      time-to-live: 30m
+      cache-null-values: false
+
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:16379}
       password: ${REDIS_PASSWORD:}
+      timeout: 10s
 
       repositories:
         enabled: false
 
-# ----------------------------------------------
-# MinIO - Docker WSL2
-# ----------------------------------------------
+  # ==========================================================
+  # 6. KAFKA - CLUSTER K3S / STRIMZI
+  # ==========================================================
+  #
+  # Cluster:
+  #   kafka-cluster
+  #
+  # Broker 0:
+  #   kafka-cluster-dual-role-0...:9092
+  #   Resolucao Windows: 127.0.0.2
+  #
+  # Broker 1:
+  #   kafka-cluster-dual-role-1...:9092
+  #   Resolucao Windows: 127.0.0.3
+  #
+  # Broker 2:
+  #   kafka-cluster-dual-role-2...:9092
+  #   Resolucao Windows: 127.0.0.4
+  #
+  # Conexao Kafka ja validada pelo KafkaConnectionTest.
+  #
+  # O listener PLAINTEXT deve permanecer acessivel
+  # somente por rede confiavel e tuneis SSH.
+  #
+  # ==========================================================
+
+  kafka:
+
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka-cluster-dual-role-0.kafka-cluster-kafka-brokers.prod.svc:9092,kafka-cluster-dual-role-1.kafka-cluster-kafka-brokers.prod.svc:9092,kafka-cluster-dual-role-2.kafka-cluster-kafka-brokers.prod.svc:9092}
+
+    client-id: string-api-ocr-dev
+
+    properties:
+      security.protocol: PLAINTEXT
+
+    # --------------------------------------------------------
+    # 6.1 PRODUCER
+    # --------------------------------------------------------
+    #
+    # Usado pelo OcrOutboxPublicacaoService.
+    #
+    # acks=all:
+    #   Solicita confirmacao dos replicas exigidos
+    #   pela configuracao do broker.
+    #
+    # enable.idempotence:
+    #   Evita determinadas duplicacoes causadas
+    #   por retries do producer.
+    #
+    # A Outbox continua sendo at-least-once.
+    #
+    # --------------------------------------------------------
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+      acks: all
+      retries: 3
+
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+    # --------------------------------------------------------
+    # 6.2 CONSUMER
+    # --------------------------------------------------------
+    #
+    # Configurado, mas desativado nesta etapa.
+    #
+    # Grupo:
+    #   string-api-ocr-dev
+    #
+    # auto-offset-reset=earliest:
+    #   Se o grupo ainda nao tiver offsets,
+    #   comecara pelo inicio dos registros retidos.
+    #
+    # --------------------------------------------------------
+
+    consumer:
+      group-id: ${KAFKA_OCR_GROUP_ID:string-api-ocr-dev}
+
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      max-poll-records: 1
+
+      properties:
+        max.poll.interval.ms: 900000
+
+    # --------------------------------------------------------
+    # 6.3 LISTENER
+    # --------------------------------------------------------
+    #
+    # Confirmacao manual apos processamento.
+    # O funcionamento depende do consumer ser habilitado.
+    #
+    # --------------------------------------------------------
+
+    listener:
+      ack-mode: manual_immediate
+      concurrency: 1
+
+# ============================================================
+# 7. MINIO - PRODUCAO VIA SSH
+# ============================================================
+#
+# Endpoint:
+#   http://127.0.0.1:19000
+#
+# Bucket:
+#   string-api
+#
+# Credenciais obtidas do .env.
+#
+# IMPORTANTE:
+# O prefixo DEV precisa ser respeitado pela
+# implementacao da classe de storage.
+#
+# ============================================================
+
 minio:
-  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:19000}
   bucket: ${MINIO_BUCKET:string-api}
+
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
 
-# ----------------------------------------------
-# OCR - Processamento de imagens
-# ----------------------------------------------
+# ============================================================
+# 8. OCR - PROCESSAMENTO DE IMAGENS
+# ============================================================
+
 ocr:
+
+  # Modulo OCR habilitado.
   enabled: true
 
-  # Motor ativo: quarkus ou tesseract
+  # Motor principal.
   engine: ${OCR_ENGINE:quarkus}
 
-  # --------------------------------------------
-  # Microsservico Quarkus + PaddleOCR
-  # --------------------------------------------
-  quarkus:
-    url: ${OCR_QUARKUS_URL:http://localhost:8081/api/v1/ocr/extrair}
-    api-key: ${OCR_QUARKUS_API_KEY:dev-only-change-me}
-    timeout-seconds: 240
+  # ==========================================================
+  # 8.1 QUARKUS / PADDLEOCR
+  # ==========================================================
+  #
+  # Tunel validado:
+  #   Windows 127.0.0.1:18082
+  #        |
+  #        v
+  #   servidor-b 127.0.0.1:18081
+  #        |
+  #        v
+  #   Kubernetes ocr-engine:8080
+  #
+  # Health:
+  #   GET /q/health -> HTTP 200
+  #
+  # OCR:
+  #   POST /api/v1/ocr/extrair -> HTTP 200
+  #
+  # Autenticacao:
+  #   Header X-API-Key
+  #
+  # Resultado validado:
+  #   OCR KAFKA TESTE 20261016
+  #
+  # ==========================================================
 
-  # --------------------------------------------
-  # Tesseract - Motor alternativo
-  # --------------------------------------------
+  quarkus:
+    url: ${OCR_QUARKUS_URL:http://127.0.0.1:18082/api/v1/ocr/extrair}
+    api-key: ${OCR_QUARKUS_API_KEY}
+    timeout-seconds: ${OCR_QUARKUS_TIMEOUT_SECONDS:240}
+
+  # ==========================================================
+  # 8.2 TESSERACT - MOTOR ALTERNATIVO
+  # ==========================================================
+
   segunda-passagem: true
 
   tessdata:
     path: ${OCR_TESSDATA_PATH:./tessdata}
     language: por+eng
 
-  # --------------------------------------------
-  # Armazenamento de imagens
-  # --------------------------------------------
+  # ==========================================================
+  # 8.3 STORAGE OCR
+  # ==========================================================
+  #
+  # Bucket:
+  #   string-api
+  #
+  # Prefixo DEV:
+  #   ocr/imagens/dev
+  #
+  # Evita misturar objetos DEV e PROD quando aplicado
+  # efetivamente pela implementacao OcrStorage.
+  #
+  # ==========================================================
+
   storage:
     provider: minio
-    prefix: ocr/imagens
+    prefix: ${OCR_STORAGE_PREFIX:ocr/imagens/dev}
 
-  # --------------------------------------------
-  # Worker assincrono
-  # --------------------------------------------
-  worker:
+  # ==========================================================
+  # 8.4 KAFKA OCR
+  # ==========================================================
+  #
+  # Topico principal:
+  #   ocr.imagens.dev
+  #
+  # Dead Letter Topic:
+  #   ocr.imagens.dev.dlt
+  #
+  # enabled=true habilita componentes que dependam
+  # da propriedade geral ocr.kafka.enabled.
+  #
+  # consumer.enabled=false mantem especificamente
+  # o OcrKafkaConsumer desativado, DESDE QUE
+  # a anotacao Java seja atualizada.
+  #
+  # ==========================================================
+
+  kafka:
     enabled: true
-    delay-ms: 3000
+
+    topic: ${OCR_KAFKA_TOPIC:ocr.imagens.dev}
+    dlt-topic: ${OCR_KAFKA_DLT_TOPIC:ocr.imagens.dev.dlt}
+
+    # Nao consumir eventos nesta primeira validacao.
+    consumer:
+      enabled: true
+
+  # ==========================================================
+  # 8.5 TRANSACTIONAL OUTBOX
+  # ==========================================================
+  #
+  # Tabela:
+  #   tb_ocr_outbox
+  #
+  # Fluxo:
+  #   1. Buscar eventos sem publicado_em
+  #   2. Publicar em ocr.imagens.dev
+  #   3. Aguardar confirmacao do Kafka
+  #   4. Atualizar publicado_em
+  #
+  # Se a publicacao falhar:
+  #   - O evento permanece pendente
+  #   - Registra numero de tentativas e erro
+  #   - Tenta novamente no proximo ciclo
+  #
+  # ATENCAO:
+  # Um evento pode ser publicado novamente caso
+  # ocorra falha apos confirmacao Kafka e antes
+  # do commit PostgreSQL.
+  #
+  # ==========================================================
+
+  outbox:
+    publisher:
+      enabled: true
+      delay-ms: 5000
+
+  # ==========================================================
+  # 8.6 WORKER OCR LEGADO
+  # ==========================================================
+  #
+  # DESATIVADO durante o teste de publicacao Kafka.
+  #
+  # Assim evitamos que o worker SQL continue
+  # processando imagens antes do consumer Kafka.
+  #
+  # ==========================================================
+
+  worker:
+    enabled: false
+    delay-ms: 15000
     batch-size: 10
 
-  # --------------------------------------------
-  # Limites de processamento
-  # --------------------------------------------
+  # ==========================================================
+  # 8.7 LIMITES OCR
+  # ==========================================================
+  #
+  # max-image-size e min-confidence sao parametros
+  # que precisam ser aplicados pelo codigo Java.
+  #
+  # ==========================================================
+
   processing:
     max-image-size: 15MB
     min-confidence: 0.70
 
-# ----------------------------------------------
-# Aplicacao DEV
-# ----------------------------------------------
+# ============================================================
+# 9. APLICACAO DEV
+# ============================================================
+
 app:
+
   frontend-url: https://stringtecnologiadf.org:4200
 
   storage:
     path: documentos
 
-# ----------------------------------------------
-# Logging DEV
-# ----------------------------------------------
+# ============================================================
+# 10. LOGGING DEV
+# ============================================================
+
 logging:
   level:
-    org.springframework.security: TRACE
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
 
-    # Corrigido: ocr em vez de orc
+    root: INFO
+
+    # Framework
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+
+    # Hibernate
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+
+    # Modulo OCR
     org.stringtecnologia.string_api.ocr: DEBUG
 
-# ----------------------------------------------
-# String Tecnologia DEV
-# ----------------------------------------------
+    # Kafka
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
+
+    # Pool PostgreSQL
+    com.zaxxer.hikari: INFO
+
+# ============================================================
+# 11. STRING TECNOLOGIA - DEV
+# ============================================================
+
 string:
+
   ordem-servico:
     consulta-base-url: ${ORDEM_SERVICO_CONSULTA_BASE_URL:https://stringtecnologiadf.org:4200/consulta/os}
+
+# ============================================================
+# FIM - APPLICATION DEV
+# ============================================================
