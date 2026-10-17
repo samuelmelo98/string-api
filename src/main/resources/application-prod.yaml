@@ -15,6 +15,39 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
 
+  # =========================================================
+  # KAFKA - PRODUCAO
+  # =========================================================
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka-cluster-kafka-bootstrap.prod.svc.cluster.local:9092}
+    client-id: string-api-ocr-prod
+
+    properties:
+      security.protocol: PLAINTEXT
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+    consumer:
+      group-id: ${KAFKA_OCR_GROUP_ID:string-api-ocr-prod}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      max-poll-records: 1
+      properties:
+        max.poll.interval.ms: 900000
+
+    listener:
+      ack-mode: manual_immediate
+      concurrency: 1
+
 app:
   frontend-url: https://site-html.cluster.stringtecnologiadf.org
   storage:
@@ -37,7 +70,7 @@ ocr:
     prefix: ${OCR_STORAGE_PREFIX:ocr/imagens}
 
   worker:
-    enabled: ${OCR_WORKER_ENABLED:true}
+    enabled: ${OCR_WORKER_ENABLED:false}
     delay-ms: ${OCR_WORKER_DELAY_MS:3000}
     batch-size: ${OCR_WORKER_BATCH_SIZE:10}
 
@@ -50,4 +83,23 @@ ocr:
     api-key: ${OCR_QUARKUS_API_KEY}
     connect-timeout: ${OCR_QUARKUS_CONNECT_TIMEOUT:10s}
     read-timeout: ${OCR_QUARKUS_READ_TIMEOUT:240s}
+
+  # =========================================================
+  # KAFKA OCR - PRODUCAO
+  # =========================================================
+  kafka:
+    enabled: ${OCR_KAFKA_ENABLED:true}
+    topic: ${OCR_KAFKA_TOPIC:ocr.imagens.prod}
+    dlt-topic: ${OCR_KAFKA_DLT_TOPIC:ocr.imagens.prod.dlt}
+
+    consumer:
+      enabled: ${OCR_KAFKA_CONSUMER_ENABLED:true}
+
+  # =========================================================
+  # OUTBOX - PUBLICACAO ASSINCRONA
+  # =========================================================
+  outbox:
+    publisher:
+      enabled: ${OCR_OUTBOX_PUBLISHER_ENABLED:true}
+      delay-ms: ${OCR_OUTBOX_PUBLISHER_DELAY_MS:5000}
 
