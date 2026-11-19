@@ -11,8 +11,8 @@ public record ConsultaOrdemServicoRequestDTO(
                 message = "Os últimos dígitos do CPF são obrigatórios."
         )
         @Pattern(
-                regexp = "\\d{2}",
-                message = "Informe exatamente os 2 últimos dígitos do CPF."
+                regexp = "\\d{4}",
+                message = "Informe exatamente os 4 últimos dígitos do CPF."
         )
         String ultimosDigitosCpf,
 

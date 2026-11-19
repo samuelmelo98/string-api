@@ -86,7 +86,7 @@ public class ConsultaOrdemServicoService {
             throw acessoNegado();
         }
 
-        if (!cpf.endsWith(
+        if (ultimosDigitosCpf == null || !ultimosDigitosCpf.matches("\\d{4}") || !cpf.endsWith(
                 ultimosDigitosCpf
         )) {
 
