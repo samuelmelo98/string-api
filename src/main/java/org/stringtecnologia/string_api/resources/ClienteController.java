@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -44,20 +45,17 @@ public class ClienteController {
     }
 
 
+
     @GetMapping
-    public ResponseEntity<Page<ClienteResponseDTO>> listar(
+    public ResponseEntity<PagedModel<ClienteResponseDTO>> listar(
             Pageable pageable,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "true") Boolean ativo
     ) {
+        Page<ClienteResponseDTO> pagina =
+                clienteService.listar(pageable, search, ativo);
 
-        return ResponseEntity.ok(
-                clienteService.listar(
-                        pageable,
-                        search,
-                        ativo
-                )
-        );
+        return ResponseEntity.ok(new PagedModel<>(pagina));
     }
 
 
